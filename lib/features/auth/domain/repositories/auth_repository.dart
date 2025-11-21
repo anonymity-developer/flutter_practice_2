@@ -1,4 +1,5 @@
 import '../entities/user.dart';
+import '../entities/signup_data.dart';
 
 /// Domain Repository Interface: 비즈니스 로직에서 사용할 데이터 접근 계약
 /// - 구현체는 Data 레이어에 있음 (의존성 역전 원칙)
@@ -17,5 +18,14 @@ abstract class AuthRepository {
   
   /// 사용자 정보 삭제
   Future<void> clearUser();
+
+  /// 회원가입 정보 저장
+  Future<void> saveSignupData(SignupData data);
+
+  /// 저장된 회원가입 정보 가져오기
+  Future<SignupData?> getSignupData();
+
+  /// 회원가입 정보 삭제
+  Future<void> clearSignupData();
 }
 

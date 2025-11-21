@@ -1,7 +1,9 @@
 import '../../domain/entities/user.dart';
+import '../../domain/entities/signup_data.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../models/user_model.dart';
+import '../models/signup_data_model.dart';
 
 /// Repository Implementation: Domain의 Repository 인터페이스 구현
 /// - DataSource를 사용하여 실제 데이터 처리
@@ -43,6 +45,23 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> clearUser() async {
     await localDataSource.clearUser();
+  }
+
+  @override
+  Future<void> saveSignupData(SignupData data) async {
+    final dataModel = SignupDataModel.fromEntity(data);
+    await localDataSource.saveSignupData(dataModel);
+  }
+
+  @override
+  Future<SignupData?> getSignupData() async {
+    final dataModel = await localDataSource.getSignupData();
+    return dataModel?.toEntity();
+  }
+
+  @override
+  Future<void> clearSignupData() async {
+    await localDataSource.clearSignupData();
   }
 }
 
