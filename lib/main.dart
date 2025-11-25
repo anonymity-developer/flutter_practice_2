@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/data/datasources/auth_local_datasource.dart';
-import 'features/auth/data/repositories/auth_repository_impl.dart';
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/bloc/auth_event.dart';
-import 'features/auth/presentation/bloc/signup_bloc.dart';
-import 'features/auth/presentation/bloc/signup_event.dart';
-import 'features/auth/presentation/pages/social_login_screen.dart';
-import 'features/auth/presentation/pages/id_login_screen.dart';
-import 'features/auth/presentation/pages/terms_agreement_screen.dart';
-import 'features/auth/presentation/pages/nickname_screen.dart';
-import 'features/auth/presentation/pages/additional_info_screen.dart';
-import 'features/auth/presentation/pages/signup_complete_screen.dart';
+import 'features/login/repository/login_datasource.dart';
+import 'features/login/repository/login_repository.dart';
+import 'features/login/cubits/login_cubit.dart';
+import 'features/login/presentation/social_login_screen.dart';
+import 'features/login/presentation/id_login_screen.dart';
+import 'features/login/presentation/temp_main_screen.dart';
+import 'features/signup/repository/signup_datasource.dart';
+import 'features/signup/repository/signup_repository.dart';
+import 'features/signup/cubits/signup_cubit.dart';
+import 'features/signup/presentation/terms_agreement_screen.dart';
+import 'features/signup/presentation/nickname_screen.dart';
+import 'features/signup/presentation/additional_info_screen.dart';
+import 'features/signup/presentation/signup_complete_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,18 +27,14 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => AuthBloc(
-            AuthRepositoryImpl(
-              AuthLocalDataSourceImpl(),
-            ),
-          )..add(const LoadSavedUser()),
+          create: (context) => LoginCubit(
+            LoginRepository(LoginDataSource()),
+          ),
         ),
         BlocProvider(
-          create: (context) => SignupBloc(
-            AuthRepositoryImpl(
-              AuthLocalDataSourceImpl(),
-            ),
-          )..add(const LoadSignupData()),
+          create: (context) => SignupCubit(
+            SignupRepository(SignupDataSource()),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -47,6 +44,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/social_login': (context) => const SocialLoginScreen(),
           '/id_login': (context) => const IdLoginScreen(),
+          '/temp_main': (context) => const TempMainScreen(),
           '/terms_agreement': (context) => const TermsAgreementScreen(),
           '/nickname': (context) => const NicknameScreen(),
           '/additional_info': (context) => const AdditionalInfoScreen(),

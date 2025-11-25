@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_bloc.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_event.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_state.dart';
+import '../cubits/signup_cubit.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
   const AdditionalInfoScreen({super.key});
@@ -43,7 +41,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SignupBloc, SignupState>(
+    return BlocBuilder<SignupCubit, SignupState>(
       builder: (context, state) {
         String? nickname;
         if (state is SignupDataLoaded) {
@@ -157,19 +155,17 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                       ),
                       onPressed: _isButtonEnabled
                           ? () {
-                              // BLoC을 통해 추가 정보 저장
-                              context.read<SignupBloc>().add(
-                                    SaveBirthday(_birthdayController.text),
+                              // Cubit을 통해 추가 정보 저장
+                              context.read<SignupCubit>().saveBirthday(
+                                    _birthdayController.text,
                                   );
-                              context.read<SignupBloc>().add(
-                                    SaveGender(_selectedGender!),
+                              context.read<SignupCubit>().saveGender(
+                                    _selectedGender!,
                                   );
-                              context.read<SignupBloc>().add(
-                                    SaveReferralCode(
-                                      _referralCodeController.text.isEmpty
-                                          ? null
-                                          : _referralCodeController.text,
-                                    ),
+                              context.read<SignupCubit>().saveReferralCode(
+                                    _referralCodeController.text.isEmpty
+                                        ? null
+                                        : _referralCodeController.text,
                                   );
 
                               Navigator.pushNamed(

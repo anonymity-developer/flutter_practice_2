@@ -5,8 +5,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_bloc.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_event.dart';
+import '../cubits/signup_cubit.dart';
 
 class TermsAgreementScreen extends StatefulWidget {
   const TermsAgreementScreen({super.key});
@@ -30,20 +29,19 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
       _locationInfo = _allAgreed;
       _marketingInfo = _allAgreed;
 
-      // BLoC을 통해 약관 동의 정보 저장
-      context.read<SignupBloc>().add(
-            SaveTermsAgreement(
-              serviceTerms: _serviceTerms,
-              privacyPolicy: _privacyPolicy,
-              locationInfo: _locationInfo,
-              marketingInfo: _marketingInfo,
-            ),
+      // Cubit을 통해 약관 동의 정보 저장
+      context.read<SignupCubit>().saveTermsAgreement(
+            serviceTerms: _serviceTerms,
+            privacyPolicy: _privacyPolicy,
+            locationInfo: _locationInfo,
+            marketingInfo: _marketingInfo,
           );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -81,13 +79,11 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _serviceTerms = value ?? false;
-                    context.read<SignupBloc>().add(
-                          SaveTermsAgreement(
-                            serviceTerms: _serviceTerms,
-                            privacyPolicy: _privacyPolicy,
-                            locationInfo: _locationInfo,
-                            marketingInfo: _marketingInfo,
-                          ),
+                    context.read<SignupCubit>().saveTermsAgreement(
+                          serviceTerms: _serviceTerms,
+                          privacyPolicy: _privacyPolicy,
+                          locationInfo: _locationInfo,
+                          marketingInfo: _marketingInfo,
                         );
                   });
                 },
@@ -99,13 +95,11 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _privacyPolicy = value ?? false;
-                    context.read<SignupBloc>().add(
-                          SaveTermsAgreement(
-                            serviceTerms: _serviceTerms,
-                            privacyPolicy: _privacyPolicy,
-                            locationInfo: _locationInfo,
-                            marketingInfo: _marketingInfo,
-                          ),
+                    context.read<SignupCubit>().saveTermsAgreement(
+                          serviceTerms: _serviceTerms,
+                          privacyPolicy: _privacyPolicy,
+                          locationInfo: _locationInfo,
+                          marketingInfo: _marketingInfo,
                         );
                   });
                 },
@@ -117,13 +111,11 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _locationInfo = value ?? false;
-                    context.read<SignupBloc>().add(
-                          SaveTermsAgreement(
-                            serviceTerms: _serviceTerms,
-                            privacyPolicy: _privacyPolicy,
-                            locationInfo: _locationInfo,
-                            marketingInfo: _marketingInfo,
-                          ),
+                    context.read<SignupCubit>().saveTermsAgreement(
+                          serviceTerms: _serviceTerms,
+                          privacyPolicy: _privacyPolicy,
+                          locationInfo: _locationInfo,
+                          marketingInfo: _marketingInfo,
                         );
                   });
                 },
@@ -135,13 +127,11 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _marketingInfo = value ?? false;
-                    context.read<SignupBloc>().add(
-                          SaveTermsAgreement(
-                            serviceTerms: _serviceTerms,
-                            privacyPolicy: _privacyPolicy,
-                            locationInfo: _locationInfo,
-                            marketingInfo: _marketingInfo,
-                          ),
+                    context.read<SignupCubit>().saveTermsAgreement(
+                          serviceTerms: _serviceTerms,
+                          privacyPolicy: _privacyPolicy,
+                          locationInfo: _locationInfo,
+                          marketingInfo: _marketingInfo,
                         );
                   });
                 },
@@ -149,6 +139,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
               ),
 
               const Spacer(),
+
 
               // 다음 버튼
               SizedBox(

@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_bloc.dart';
-import 'package:flutter_application_2/features/auth/presentation/bloc/signup_event.dart';
+import '../cubits/signup_cubit.dart';
 
 class NicknameScreen extends StatefulWidget {
   const NicknameScreen({super.key});
@@ -97,9 +96,9 @@ class _NicknameScreenState extends State<NicknameScreen> {
                   ),
                   onPressed: _isButtonEnabled
                       ? () {
-                          // BLoC을 통해 닉네임 저장
-                          context.read<SignupBloc>().add(
-                                SaveNickname(_nicknameController.text),
+                          // Cubit을 통해 닉네임 저장
+                          context.read<SignupCubit>().saveNickname(
+                                _nicknameController.text,
                               );
                           Navigator.pushNamed(context, '/additional_info');
                         }

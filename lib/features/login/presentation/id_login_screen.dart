@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
+import '../cubits/login_cubit.dart';
 
 class IdLoginScreen extends StatefulWidget {
   const IdLoginScreen({super.key});
@@ -13,21 +15,55 @@ class IdLoginScreen extends StatefulWidget {
 class _IdLoginScreenState extends State<IdLoginScreen> {
   final _idController = TextEditingController();
   final _pwController = TextEditingController();
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _idController.addListener(_updateButtonState);
+    _pwController.addListener(_updateButtonState);
+  }
 
   @override
   void dispose() {
+    _idController.removeListener(_updateButtonState);
+    _pwController.removeListener(_updateButtonState);
     _idController.dispose();
     _pwController.dispose();
     super.dispose();
   }
 
+  void _updateButtonState() {
+    setState(() {
+      _isButtonEnabled = _idController.text.isNotEmpty && _pwController.text.isNotEmpty;
+    });
+  }
+
   void _onLogin() {
-    // TODO: 로그인 처리
+    context.read<LoginCubit>().login(
+          _idController.text,
+          _pwController.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, state) {
+        if (state is LoginSuccess) {
+          // 로그인 성공 시 메인 화면으로 이동
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/temp_main',
+            (route) => false,
+          );
+        } else if (state is LoginFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         leading: IconButton(
@@ -143,16 +179,20 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
                 height: 54,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: _isButtonEnabled
+                        ? AppColors.primary
+                        : AppColors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: _onLogin,
+                  onPressed: _isButtonEnabled ? _onLogin : null,
                   child: Text(
                     '로그인',
                     style: AppTextStyles.button(
-                      color: AppColors.white,
+                      color: _isButtonEnabled
+                          ? AppColors.white
+                          : AppColors.secondary_color_gray_7,
                     ),
                   ),
                 ),
@@ -161,6 +201,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
