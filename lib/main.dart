@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'features/auth/data/datasources/auth_local_datasource.dart';
-import 'features/auth/data/repositories/auth_repository_impl.dart';
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/bloc/auth_event.dart';
-import 'features/auth/presentation/pages/sign_up_page.dart';
+import 'core/theme/app_theme.dart';
+import 'features/login/repository/login_datasource.dart';
+import 'features/login/repository/login_repository.dart';
+import 'features/login/cubits/login_cubit.dart';
+import 'features/login/presentation/social_login_screen.dart';
+import 'features/login/presentation/id_login_screen.dart';
+import 'features/login/presentation/temp_main_screen.dart';
+import 'features/signup/repository/signup_datasource.dart';
+import 'features/signup/repository/signup_repository.dart';
+import 'features/signup/cubits/signup_cubit.dart';
+import 'features/signup/presentation/terms_agreement_screen.dart';
+import 'features/signup/presentation/nickname_screen.dart';
+import 'features/signup/presentation/additional_info_screen.dart';
+import 'features/signup/presentation/signup_complete_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,18 +24,35 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '회원가입 앱',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: BlocProvider(
-        create: (context) => AuthBloc(
-          AuthRepositoryImpl(
-            AuthLocalDataSourceImpl(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => LoginCubit(
+            LoginRepository(LoginDataSource()),
           ),
-        )..add(const LoadSavedUser()),
-        child: const SignUpPage(),
+        ),
+        BlocProvider(
+          create: (context) => SignupCubit(
+            SignupRepository(SignupDataSource()),
+          ),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Pethroom Friends',
+        theme: AppTheme.lightTheme,
+        initialRoute: '/social_login',
+        routes: {
+          '/social_login': (context) => const SocialLoginScreen(),
+          '/id_login': (context) => const IdLoginScreen(),
+          '/temp_main': (context) => const TempMainScreen(),
+          '/terms_agreement': (context) => const TermsAgreementScreen(),
+          '/nickname': (context) => const NicknameScreen(),
+          '/additional_info': (context) => const AdditionalInfoScreen(),
+          '/signup_complete': (context) {
+            final nickname = ModalRoute.of(context)?.settings.arguments as String?;
+            return SignupCompleteScreen(nickname: nickname ?? '회원');
+          },
+        },
       ),
     );
   }
