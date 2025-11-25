@@ -20,6 +20,8 @@ class AppAssets {
   static const String checkboxActive = 'assets/ic_checkbox.svg';
   static const String checkboxInactive = 'assets/ic_checkbox-1.svg';
   static const String announcement = 'assets/announcement.svg';
+  static const String icDog = 'assets/boss.svg';
+  static const String icCat = 'assets/alex.svg';
 
   // Illustrations
   static const String welcomingAnimals = 'assets/welcoming_animals.gif';

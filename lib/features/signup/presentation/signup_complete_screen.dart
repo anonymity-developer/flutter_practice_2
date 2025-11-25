@@ -151,7 +151,7 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen> {
                         ),
                       ),
                       onPressed: () {
-                        // TODO: 반려동물 등록 화면으로 이동
+                        Navigator.pushNamed(context, '/pet_type_screen');
                       },
                       child: Text(
                         '내 반려동물 알려주기',
