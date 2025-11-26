@@ -5,9 +5,10 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
+import 'package:go_router/go_router.dart';
 import '../models.dart';
 import '../cubits/pet_registration_cubit.dart';
-import 'package:go_router/go_router.dart';
+import '../repository/pet_registration_repository.dart';
 
 class PetBreedScreen extends StatelessWidget {
   const PetBreedScreen({super.key});
@@ -260,14 +261,20 @@ class _BreedSelectionModal extends StatefulWidget {
 class _BreedSelectionModalState extends State<_BreedSelectionModal> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredBreeds = [];
-  final List<String> _allBreeds = [];
+  List<String>? _allBreeds;
 
   @override
   void initState() {
     super.initState();
-    _allBreeds.addAll(PetBreeds.getBreeds(widget.type));
-    _filteredBreeds = _allBreeds;
     _searchController.addListener(_filterBreeds);
+  }
+
+  void _initializeBreeds(BuildContext context) {
+    if (_allBreeds == null) {
+      final repository = context.read<PetRegistrationRepository>();
+      _allBreeds = repository.getBreeds(widget.type);
+      _filteredBreeds = List.from(_allBreeds!);
+    }
   }
 
   @override
@@ -281,9 +288,9 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filteredBreeds = _allBreeds;
+        _filteredBreeds = List.from(_allBreeds ?? []);
       } else {
-        _filteredBreeds = _allBreeds
+        _filteredBreeds = (_allBreeds ?? [])
             .where((breed) => breed.toLowerCase().contains(query))
             .toList();
       }
@@ -292,6 +299,7 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
+    _initializeBreeds(context);
     final petTypeText = widget.type == PetType.dog ? '강아지' : '고양이';
     
     return Container(

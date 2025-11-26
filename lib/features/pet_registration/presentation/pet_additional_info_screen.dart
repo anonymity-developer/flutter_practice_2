@@ -365,11 +365,11 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   .read<PetRegistrationCubit>()
                                   .updateBodyType(_selectedBodyType);
                               
-                              // 등록 완료 후 temp_main으로 이동
+                              // 등록 완료 후 main으로 이동
                               context.read<PetRegistrationCubit>().completeRegistration().then((_) {
                                 final state = context.read<PetRegistrationCubit>().state;
                                 if (state is PetRegistrationSuccess) {
-                                  context.go('/temp_main', extra: state.pet);
+                                  context.go('/main', extra: state.pet);
                                 }
                               });
                             }

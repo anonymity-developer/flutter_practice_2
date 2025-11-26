@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-/// 회원가입 정보 모델
-class SignupData extends Equatable {
+/// 유저 등록 정보 모델
+class UserRegistrationData extends Equatable {
   final String? nickname;
   final String? birthday;
   final String? gender;
@@ -11,7 +11,7 @@ class SignupData extends Equatable {
   final bool locationInfo;
   final bool marketingInfo;
 
-  const SignupData({
+  const UserRegistrationData({
     this.nickname,
     this.birthday,
     this.gender,
@@ -23,7 +23,7 @@ class SignupData extends Equatable {
   });
 
   /// 불변성을 유지하면서 특정 필드만 업데이트
-  SignupData copyWith({
+  UserRegistrationData copyWith({
     String? nickname,
     String? birthday,
     String? gender,
@@ -33,7 +33,7 @@ class SignupData extends Equatable {
     bool? locationInfo,
     bool? marketingInfo,
   }) {
-    return SignupData(
+    return UserRegistrationData(
       nickname: nickname ?? this.nickname,
       birthday: birthday ?? this.birthday,
       gender: gender ?? this.gender,
@@ -45,9 +45,9 @@ class SignupData extends Equatable {
     );
   }
 
-  /// JSON에서 SignupData로 변환
-  factory SignupData.fromJson(Map<String, dynamic> json) {
-    return SignupData(
+  /// JSON에서 UserRegistrationData로 변환
+  factory UserRegistrationData.fromJson(Map<String, dynamic> json) {
+    return UserRegistrationData(
       nickname: json['nickname'] as String?,
       birthday: json['birthday'] as String?,
       gender: json['gender'] as String?,
@@ -59,7 +59,7 @@ class SignupData extends Equatable {
     );
   }
 
-  /// SignupData를 JSON으로 변환
+  /// UserRegistrationData를 JSON으로 변환
   Map<String, dynamic> toJson() {
     return {
       'nickname': nickname,

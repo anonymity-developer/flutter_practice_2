@@ -5,7 +5,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
-import '../cubits/signup_cubit.dart';
+import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class TermsAgreementScreen extends StatefulWidget {
@@ -31,7 +31,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
       _marketingInfo = _allAgreed;
 
       // Cubit을 통해 약관 동의 정보 저장
-      context.read<SignupCubit>().saveTermsAgreement(
+      context.read<UserRegistrationCubit>().saveTermsAgreement(
             serviceTerms: _serviceTerms,
             privacyPolicy: _privacyPolicy,
             locationInfo: _locationInfo,
@@ -80,7 +80,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _serviceTerms = value ?? false;
-                    context.read<SignupCubit>().saveTermsAgreement(
+                    context.read<UserRegistrationCubit>().saveTermsAgreement(
                           serviceTerms: _serviceTerms,
                           privacyPolicy: _privacyPolicy,
                           locationInfo: _locationInfo,
@@ -96,7 +96,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _privacyPolicy = value ?? false;
-                    context.read<SignupCubit>().saveTermsAgreement(
+                    context.read<UserRegistrationCubit>().saveTermsAgreement(
                           serviceTerms: _serviceTerms,
                           privacyPolicy: _privacyPolicy,
                           locationInfo: _locationInfo,
@@ -112,7 +112,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _locationInfo = value ?? false;
-                    context.read<SignupCubit>().saveTermsAgreement(
+                    context.read<UserRegistrationCubit>().saveTermsAgreement(
                           serviceTerms: _serviceTerms,
                           privacyPolicy: _privacyPolicy,
                           locationInfo: _locationInfo,
@@ -128,7 +128,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                 (value) {
                   setState(() {
                     _marketingInfo = value ?? false;
-                    context.read<SignupCubit>().saveTermsAgreement(
+                    context.read<UserRegistrationCubit>().saveTermsAgreement(
                           serviceTerms: _serviceTerms,
                           privacyPolicy: _privacyPolicy,
                           locationInfo: _locationInfo,
@@ -155,7 +155,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                   ),
                   onPressed: (_serviceTerms && _privacyPolicy)
                       ? () {
-                          context.push('/signup/nickname');
+                          context.push('/user_registration/nickname');
                         }
                       : null,
                   child: Text(

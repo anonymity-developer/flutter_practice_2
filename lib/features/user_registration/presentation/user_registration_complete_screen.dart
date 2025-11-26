@@ -4,22 +4,22 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
-import '../cubits/signup_cubit.dart';
+import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
-class SignupCompleteScreen extends StatefulWidget {
+class UserRegistrationCompleteScreen extends StatefulWidget {
   final String nickname;
 
-  const SignupCompleteScreen({
+  const UserRegistrationCompleteScreen({
     super.key,
     this.nickname = '회원',
   });
 
   @override
-  State<SignupCompleteScreen> createState() => _SignupCompleteScreenState();
+  State<UserRegistrationCompleteScreen> createState() => _UserRegistrationCompleteScreenState();
 }
 
-class _SignupCompleteScreenState extends State<SignupCompleteScreen> {
+class _UserRegistrationCompleteScreenState extends State<UserRegistrationCompleteScreen> {
   @override
   void initState() {
     super.initState();
@@ -91,15 +91,15 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen> {
       body: SafeArea(
         child: Padding(
           padding: AppSpacing.paddingHorizontalLG,
-          child: BlocBuilder<SignupCubit, SignupState>(
+          child: BlocBuilder<UserRegistrationCubit, UserRegistrationState>(
             builder: (context, state) {
               // State에서 닉네임 가져오기
               String nickname = widget.nickname; // 기본값
-              if (state is SignupDataLoaded) {
+              if (state is UserRegistrationDataLoaded) {
                 nickname = state.data.nickname ?? widget.nickname;
-              } else if (state is SignupDataSaved) {
+              } else if (state is UserRegistrationDataSaved) {
                 nickname = state.data.nickname ?? widget.nickname;
-              } else if (state is SignupInitial) {
+              } else if (state is UserRegistrationInitial) {
                 nickname = state.data.nickname ?? widget.nickname;
               }
 

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
-import '../cubits/signup_cubit.dart';
+import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
@@ -42,7 +42,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SignupCubit, SignupState>(
+    return BlocBuilder<UserRegistrationCubit, UserRegistrationState>(
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -150,19 +150,19 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                       onPressed: _isButtonEnabled
                           ? () {
                               // Cubit을 통해 추가 정보 저장
-                              context.read<SignupCubit>().saveBirthday(
+                              context.read<UserRegistrationCubit>().saveBirthday(
                                     _birthdayController.text,
                                   );
-                              context.read<SignupCubit>().saveGender(
+                              context.read<UserRegistrationCubit>().saveGender(
                                     _selectedGender!,
                                   );
-                              context.read<SignupCubit>().saveReferralCode(
+                              context.read<UserRegistrationCubit>().saveReferralCode(
                                     _referralCodeController.text.isEmpty
                                         ? null
                                         : _referralCodeController.text,
                                   );
 
-                              context.push('/signup/complete');
+                              context.push('/user_registration/complete');
                             }
                           : null,
                       child: Text(

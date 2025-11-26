@@ -52,8 +52,14 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          // 로그인 성공 시 메인 화면으로 이동
-          context.go('/temp_main');
+          // 등록 여부에 따라 분기
+          if (state.user.isRegistered) {
+            // 등록된 유저 → 메인 화면
+            context.go('/main');
+          } else {
+            // 미등록 유저 → 유저 등록 플로우
+            context.go('/user_registration/terms_agreement');
+          }
         } else if (state is LoginFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -156,9 +162,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () {
-                      context.push('/signup/terms_agreement');
-                    },
+                    onPressed: () {},
                     child: Text(
                       '회원가입',
                       style: AppTextStyles.bodyMedium(

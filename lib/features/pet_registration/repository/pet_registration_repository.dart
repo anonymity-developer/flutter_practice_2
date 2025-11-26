@@ -28,5 +28,10 @@ class PetRegistrationRepository {
   Future<void> deletePet(String petId) async {
     return dataSource.deletePet(petId);
   }
+
+  /// 반려동물 품종 목록 조회
+  List<String> getBreeds(PetType type) {
+    return dataSource.getBreeds(type);
+  }
 }
 

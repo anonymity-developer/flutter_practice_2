@@ -7,14 +7,14 @@ import 'features/login/repository/login_repository.dart';
 import 'features/login/cubits/login_cubit.dart';
 import 'features/login/presentation/social_login_screen.dart';
 import 'features/login/presentation/id_login_screen.dart';
-import 'features/login/presentation/temp_main_screen.dart';
-import 'features/signup/repository/signup_datasource.dart';
-import 'features/signup/repository/signup_repository.dart';
-import 'features/signup/cubits/signup_cubit.dart';
-import 'features/signup/presentation/terms_agreement_screen.dart';
-import 'features/signup/presentation/nickname_screen.dart';
-import 'features/signup/presentation/additional_info_screen.dart';
-import 'features/signup/presentation/signup_complete_screen.dart';
+import 'features/main/presentation/main_screen.dart';
+import 'features/user_registration/repository/user_registration_datasource.dart';
+import 'features/user_registration/repository/user_registration_repository.dart';
+import 'features/user_registration/cubits/user_registration_cubit.dart';
+import 'features/user_registration/presentation/terms_agreement_screen.dart';
+import 'features/user_registration/presentation/nickname_screen.dart';
+import 'features/user_registration/presentation/additional_info_screen.dart';
+import 'features/user_registration/presentation/user_registration_complete_screen.dart';
 import 'features/pet_registration/repository/pet_registration_datasource.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
 import 'features/pet_registration/cubits/pet_registration_cubit.dart';
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           create: (context) => LoginRepository(LoginDataSource()),
         ),
         RepositoryProvider(
-          create: (context) => SignupRepository(SignupDataSource()),
+          create: (context) => UserRegistrationRepository(UserRegistrationDataSource()),
         ),
         RepositoryProvider(
           create: (context) =>
@@ -85,27 +85,27 @@ final GoRouter _router = GoRouter(
     ),
 
     GoRoute(
-      path: '/temp_main',
+      path: '/main',
       builder: (context, state) {
-        return const TempMainScreen();
+        return const MainScreen();
       },
     ),
 
-    // 회원가입 (signup cubit 주입)
+    // 유저 등록 (user registration cubit 주입)
     ShellRoute(
       builder: (context, state, child) => BlocProvider(
-        create: (context) => SignupCubit(context.read<SignupRepository>()),
+        create: (context) => UserRegistrationCubit(context.read<UserRegistrationRepository>()),
         child: child,
       ),
       routes: [
         GoRoute(
-          path: '/signup',
+          path: '/user_registration',
           redirect: (context, state) {
             final path = state.uri.path;
-            if (path.startsWith('/signup') && path != '/signup') {
+            if (path.startsWith('/user_registration/') && path != '/user_registration') {
               return null;
             }
-            return '/signup/terms_agreement';
+            return '/user_registration/terms_agreement';
           },
           routes: [
             GoRoute(
@@ -122,7 +122,7 @@ final GoRouter _router = GoRouter(
             ),
             GoRoute(
               path: 'complete',
-              builder: (context, state) => const SignupCompleteScreen(),
+              builder: (context, state) => const UserRegistrationCompleteScreen(),
             ),
           ],
         ),

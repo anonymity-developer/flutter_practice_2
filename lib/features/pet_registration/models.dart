@@ -67,36 +67,3 @@ class Pet {
   }
 }
 
-/// Pet 종류 목록
-class PetBreeds {
-  static const List<String> dogBreeds = [
-    '강아지1',
-    '강아지2',
-    '강아지3',
-    '강아지4',
-    '강아지5',
-    '강아지6',
-    '강아지7',
-    '강아지8',
-    '강아지9',
-    '강아지10',
-  ];
-
-  static const List<String> catBreeds = [
-    '고양이1',
-    '고양이2',
-    '고양이3',
-    '고양이4',
-    '고양이5',
-    '고양이6',
-    '고양이7',
-    '고양이8',
-    '고양이9',
-    '고양이10',
-  ];
-
-  static List<String> getBreeds(PetType type) {
-    return type == PetType.dog ? dogBreeds : catBreeds;
-  }
-}
-
