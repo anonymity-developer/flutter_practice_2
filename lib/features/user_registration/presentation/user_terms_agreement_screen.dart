@@ -8,14 +8,14 @@ import 'package:flutter_application_2/core/constants/app_assets.dart';
 import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
-class TermsAgreementScreen extends StatefulWidget {
-  const TermsAgreementScreen({super.key});
+class UserTermsAgreementScreen extends StatefulWidget {
+  const UserTermsAgreementScreen({super.key});
 
   @override
-  State<TermsAgreementScreen> createState() => _TermsAgreementScreenState();
+  State<UserTermsAgreementScreen> createState() => _UserTermsAgreementScreenState();
 }
 
-class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
+class _UserTermsAgreementScreenState extends State<UserTermsAgreementScreen> {
   bool _allAgreed = false;
   bool _serviceTerms = false;
   bool _privacyPolicy = false;

@@ -11,9 +11,9 @@ import 'features/main/presentation/main_screen.dart';
 import 'features/user_registration/repository/user_registration_datasource.dart';
 import 'features/user_registration/repository/user_registration_repository.dart';
 import 'features/user_registration/cubits/user_registration_cubit.dart';
-import 'features/user_registration/presentation/terms_agreement_screen.dart';
-import 'features/user_registration/presentation/nickname_screen.dart';
-import 'features/user_registration/presentation/additional_info_screen.dart';
+import 'features/user_registration/presentation/user_terms_agreement_screen.dart';
+import 'features/user_registration/presentation/user_nickname_screen.dart';
+import 'features/user_registration/presentation/user_additional_info_screen.dart';
 import 'features/user_registration/presentation/user_registration_complete_screen.dart';
 import 'features/pet_registration/repository/pet_registration_datasource.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
@@ -110,15 +110,15 @@ final GoRouter _router = GoRouter(
           routes: [
             GoRoute(
               path: 'terms_agreement',
-              builder: (context, state) => const TermsAgreementScreen(),
+              builder: (context, state) => const UserTermsAgreementScreen(),
             ),
             GoRoute(
               path: 'nickname',
-              builder: (context, state) => const NicknameScreen(),
+              builder: (context, state) => const UserNicknameScreen(),
             ),
             GoRoute(
               path: 'additional_info',
-              builder: (context, state) => const AdditionalInfoScreen(),
+              builder: (context, state) => const UserAdditionalInfoScreen(),
             ),
             GoRoute(
               path: 'complete',

@@ -6,14 +6,14 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
-class AdditionalInfoScreen extends StatefulWidget {
-  const AdditionalInfoScreen({super.key});
+class UserAdditionalInfoScreen extends StatefulWidget {
+  const UserAdditionalInfoScreen({super.key});
 
   @override
-  State<AdditionalInfoScreen> createState() => _AdditionalInfoScreenState();
+  State<UserAdditionalInfoScreen> createState() => _UserAdditionalInfoScreenState();
 }
 
-class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
+class _UserAdditionalInfoScreenState extends State<UserAdditionalInfoScreen> {
   final _birthdayController = TextEditingController();
   final _referralCodeController = TextEditingController();
   String? _selectedGender;

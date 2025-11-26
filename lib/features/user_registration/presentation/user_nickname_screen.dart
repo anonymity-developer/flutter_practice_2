@@ -6,14 +6,14 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/user_registration_cubit.dart';
 import 'package:go_router/go_router.dart';
 
-class NicknameScreen extends StatefulWidget {
-  const NicknameScreen({super.key});
+class UserNicknameScreen extends StatefulWidget {
+  const UserNicknameScreen({super.key});
 
   @override
-  State<NicknameScreen> createState() => _NicknameScreenState();
+  State<UserNicknameScreen> createState() => _UserNicknameScreenState();
 }
 
-class _NicknameScreenState extends State<NicknameScreen> {
+class _UserNicknameScreenState extends State<UserNicknameScreen> {
   final _nicknameController = TextEditingController();
   bool _isButtonEnabled = false;
 
