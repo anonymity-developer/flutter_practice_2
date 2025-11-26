@@ -18,48 +18,72 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  Future<UserRegistrationData?>? _userRegistrationFuture;
-  Future<List<Pet>>? _petsFuture;
-  bool _isInitialized = false;
+  UserRegistrationData? _userRegistrationData;
+  List<Pet> _pets = [];
+  bool _isUserInfoLoading = true;
+  bool _isPetsLoading = true;
+  String? _userInfoError;
+  String? _petsError;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 첫 번째 빌드 시에만 데이터 로드
-    if (!_isInitialized) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
-      _isInitialized = true;
-    }
+    });
   }
 
-  void _loadData() {
-    // Future를 생성해서 State에 저장
+  Future<void> _loadData() async {
     final loginState = context.read<LoginCubit>().state;
-    if (loginState is LoginSuccess) {
-      final userId = loginState.user.id;
-      _userRegistrationFuture = context
-          .read<UserRegistrationRepository>()
-          .getUserRegistrationByUserId(userId);
-      _petsFuture = context
-          .read<PetRegistrationRepository>()
-          .getPetsByUserId(userId);
+    if (loginState is! LoginSuccess) {
+      return;
     }
-  }
+    final userId = loginState.user.id;
 
-  void _refreshData() {
-    final loginState = context.read<LoginCubit>().state;
-    if (loginState is LoginSuccess) {
-      final userId = loginState.user.id;
+    setState(() {
+      _isUserInfoLoading = true;
+      _isPetsLoading = true;
+      _userInfoError = null;
+      _petsError = null;
+    });
+
+    final userRegistrationRepo = context.read<UserRegistrationRepository>();
+    final petRegistrationRepo = context.read<PetRegistrationRepository>();
+
+    try {
+      final userData =
+          await userRegistrationRepo.getUserRegistrationByUserId(userId);
+      if (!mounted) return;
       setState(() {
-        // 새로운 Future를 생성 → FutureBuilder가 재실행됨
-        _userRegistrationFuture = context
-            .read<UserRegistrationRepository>()
-            .getUserRegistrationByUserId(userId);
-        _petsFuture = context
-            .read<PetRegistrationRepository>()
-            .getPetsByUserId(userId);
+        _userRegistrationData = userData;
+        _isUserInfoLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _userInfoError = '등록 정보를 불러오는 중 오류가 발생했습니다.';
+        _isUserInfoLoading = false;
       });
     }
+
+    try {
+      final pets = await petRegistrationRepo.getPetsByUserId(userId);
+      if (!mounted) return;
+      setState(() {
+        _pets = pets;
+        _isPetsLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _petsError = '펫 정보를 불러오는 중 오류가 발생했습니다.';
+        _isPetsLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    await _loadData();
   }
 
   @override
@@ -140,128 +164,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       AppSpacing.heightXS,
 
-                      FutureBuilder(
-                        future: _userRegistrationFuture, // State에 저장된 Future 사용
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary_color_gray_1,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '등록 정보를 불러오는 중 오류가 발생했습니다.',
-                                style: AppTextStyles.bodyMedium(
-                                  color: AppColors.black,
-                                ),
-                              ),
-                            );
-                          }
-
-                          final registrationData = snapshot.data;
-
-                          if (registrationData == null) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary_color_gray_1,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '등록된 정보가 없습니다.',
-                                style: AppTextStyles.bodyMedium(
-                                  color: AppColors.secondary_color_gray_10,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary_color_gray_1,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '서비스 이용약관: ${registrationData.serviceTerms ? '동의' : '미동의'}',
-                                  style: AppTextStyles.bodyMedium(
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                AppSpacing.heightSM,
-                                Text(
-                                  '개인정보 처리방침: ${registrationData.privacyPolicy ? '동의' : '미동의'}',
-                                  style: AppTextStyles.bodyMedium(
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                AppSpacing.heightSM,
-                                Text(
-                                  '위치정보 이용약관: ${registrationData.locationInfo ? '동의' : '미동의'}',
-                                  style: AppTextStyles.bodyMedium(
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                AppSpacing.heightSM,
-                                Text(
-                                  '마케팅 정보 수신: ${registrationData.marketingInfo ? '동의' : '미동의'}',
-                                  style: AppTextStyles.bodyMedium(
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                AppSpacing.heightSM,
-                                if (registrationData.nickname != null) ...[
-                                  Text(
-                                    '닉네임: ${registrationData.nickname}',
-                                    style: AppTextStyles.bodyMedium(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                  AppSpacing.heightSM,
-                                ],
-                                if (registrationData.birthday != null) ...[
-                                  Text(
-                                    '생일: ${registrationData.birthday}',
-                                    style: AppTextStyles.bodyMedium(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                  AppSpacing.heightSM,
-                                ],
-                                if (registrationData.gender != null) ...[
-                                  Text(
-                                    '성별: ${registrationData.gender}',
-                                    style: AppTextStyles.bodyMedium(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                  AppSpacing.heightSM,
-                                ],
-                                if (registrationData.referralCode != null) ...[
-                                  Text(
-                                    '추천코드: ${registrationData.referralCode}',
-                                    style: AppTextStyles.bodyMedium(
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                  AppSpacing.heightSM,
-                                ],
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                      _buildUserRegistrationSection(),
 
                       AppSpacing.heightLG,
 
@@ -277,9 +180,11 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              await context.push('/pet_registration/type');
-                              // 펫 등록 플로우에서 돌아왔을 때 데이터 새로고침
-                              _refreshData();
+                              final result = await context.push('/pet_registration/type');
+                              // 펫 등록이 완료되었을 때만 데이터 새로고침
+                              if (result == true) {
+                                _refreshData();
+                              }
                             },
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -297,130 +202,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       AppSpacing.heightXS,
 
-                      FutureBuilder<List<Pet>>(
-                        future: _petsFuture, // State에 저장된 Future 사용
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary_color_gray_1,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '펫 정보를 불러오는 중 오류가 발생했습니다.',
-                                style: AppTextStyles.bodyMedium(
-                                  color: AppColors.black,
-                                ),
-                              ),
-                            );
-                          }
-
-                          final pets = snapshot.data ?? [];
-
-                          if (pets.isEmpty) {
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary_color_gray_1,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '등록된 반려동물이 없습니다.',
-                                style: AppTextStyles.bodyMedium(
-                                  color: AppColors.secondary_color_gray_10,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            children: pets.map((pet) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary_color_gray_1,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '종류: ${pet.type == PetType.dog ? '강아지' : '고양이'}',
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                    AppSpacing.heightSM,
-                                    Text(
-                                      '품종: ${pet.breed}',
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                    AppSpacing.heightSM,
-                                    Text(
-                                      '이름: ${pet.name}',
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                    AppSpacing.heightSM,
-                                    Text(
-                                      '성별: ${pet.gender == PetGender.male ? '수컷' : '암컷'}',
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                    AppSpacing.heightSM,
-                                    Text(
-                                      '중성화: ${pet.isNeutered ? '완료' : '미완료'}',
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
-                                    if (pet.birthday != null) ...[
-                                      AppSpacing.heightSM,
-                                      Text(
-                                        '생일: ${pet.birthday}',
-                                        style: AppTextStyles.bodyMedium(
-                                          color: AppColors.black,
-                                        ),
-                                      ),
-                                    ],
-                                    if (pet.weight != null) ...[
-                                      AppSpacing.heightSM,
-                                      Text(
-                                        '몸무게: ${pet.weight}kg',
-                                        style: AppTextStyles.bodyMedium(
-                                          color: AppColors.black,
-                                        ),
-                                      ),
-                                    ],
-                                    if (pet.bodyType != null) ...[
-                                      AppSpacing.heightSM,
-                                      Text(
-                                        '체형: ${_getBodyTypeText(pet.bodyType!)}',
-                                        style: AppTextStyles.bodyMedium(
-                                          color: AppColors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
+                      _buildPetListSection(),
 
                       AppSpacing.heightLG,
                       SizedBox(
@@ -471,5 +253,181 @@ class _MainScreenState extends State<MainScreen> {
       case PetBodyType.obese:
         return '비만';
     }
+  }
+
+  Widget _buildUserRegistrationSection() {
+    if (_isUserInfoLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_userInfoError != null) {
+      return _buildMessageContainer(_userInfoError!, textColor: AppColors.black);
+    }
+
+    final registrationData = _userRegistrationData;
+    if (registrationData == null) {
+      return _buildMessageContainer(
+        '등록된 정보가 없습니다.',
+        textColor: AppColors.secondary_color_gray_10,
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary_color_gray_1,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '서비스 이용약관: ${registrationData.serviceTerms ? '동의' : '미동의'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '개인정보 처리방침: ${registrationData.privacyPolicy ? '동의' : '미동의'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '위치정보 이용약관: ${registrationData.locationInfo ? '동의' : '미동의'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '마케팅 정보 수신: ${registrationData.marketingInfo ? '동의' : '미동의'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          if (registrationData.nickname != null) ...[
+            Text(
+              '닉네임: ${registrationData.nickname}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+            AppSpacing.heightSM,
+          ],
+          if (registrationData.birthday != null) ...[
+            Text(
+              '생일: ${registrationData.birthday}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+            AppSpacing.heightSM,
+          ],
+          if (registrationData.gender != null) ...[
+            Text(
+              '성별: ${registrationData.gender}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+            AppSpacing.heightSM,
+          ],
+          if (registrationData.referralCode != null) ...[
+            Text(
+              '추천코드: ${registrationData.referralCode}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+            AppSpacing.heightSM,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPetListSection() {
+    if (_isPetsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_petsError != null) {
+      return _buildMessageContainer(_petsError!, textColor: AppColors.black);
+    }
+
+    if (_pets.isEmpty) {
+      return _buildMessageContainer(
+        '등록된 반려동물이 없습니다.',
+        textColor: AppColors.secondary_color_gray_10,
+      );
+    }
+
+    return Column(
+      children: _pets.map(_buildPetCard).toList(),
+    );
+  }
+
+  Widget _buildPetCard(Pet pet) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary_color_gray_1,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '종류: ${pet.type == PetType.dog ? '강아지' : '고양이'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '품종: ${pet.breed}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '이름: ${pet.name}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '성별: ${pet.gender == PetGender.male ? '수컷' : '암컷'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          AppSpacing.heightSM,
+          Text(
+            '중성화: ${pet.isNeutered ? '완료' : '미완료'}',
+            style: AppTextStyles.bodyMedium(color: AppColors.black),
+          ),
+          if (pet.birthday != null) ...[
+            AppSpacing.heightSM,
+            Text(
+              '생일: ${pet.birthday}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+          ],
+          if (pet.weight != null) ...[
+            AppSpacing.heightSM,
+            Text(
+              '몸무게: ${pet.weight}kg',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+          ],
+          if (pet.bodyType != null) ...[
+            AppSpacing.heightSM,
+            Text(
+              '체형: ${_getBodyTypeText(pet.bodyType!)}',
+              style: AppTextStyles.bodyMedium(color: AppColors.black),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageContainer(String message, {required Color textColor}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary_color_gray_1,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        message,
+        style: AppTextStyles.bodyMedium(color: textColor),
+      ),
+    );
   }
 }

@@ -377,12 +377,10 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   final userId = loginState.user.id;
                                   await context.read<PetRegistrationRepository>()
                                     .registerPet(userId, state.pet);
-                                  
-                                  if (!context.mounted) return;
-                                  context.go('/main');
-                                } else {
-                                  context.go('/main');
                                 }
+                                
+                                if (!context.mounted) return;
+                                context.go('/main');
                               }
                             }
                           : null,
