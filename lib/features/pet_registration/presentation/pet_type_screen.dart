@@ -7,6 +7,7 @@ import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../models.dart';
 import '../cubits/pet_registration_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class PetTypeScreen extends StatelessWidget {
   const PetTypeScreen({super.key});
@@ -18,7 +19,7 @@ class PetTypeScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       
@@ -93,7 +94,7 @@ class PetTypeScreen extends StatelessWidget {
                             ),
                             onPressed: isButtonEnabled
                                 ? () {
-                                    Navigator.pushNamed(context, '/pet_breed_screen');
+                                    context.push('/pet_registration/breed');
                                   }
                                 : null,
                             child: Text(

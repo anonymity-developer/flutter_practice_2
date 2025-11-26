@@ -5,6 +5,7 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/pet_registration_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class PetNameAndGenderScreen extends StatefulWidget {
   const PetNameAndGenderScreen({super.key});
@@ -47,7 +48,7 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -213,10 +214,7 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
                           context.read<PetRegistrationCubit>().updateIsNeutered(
                                 _isNeutered,
                               );
-                          Navigator.pushNamed(
-                            context,
-                            '/pet_additional_info_screen',
-                          );
+                          context.push('/pet_registration/additional_info');
                         }
                       : null,
                   child: Text(

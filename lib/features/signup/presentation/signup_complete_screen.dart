@@ -5,6 +5,7 @@ import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/signup_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupCompleteScreen extends StatefulWidget {
   final String nickname;
@@ -151,7 +152,7 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen> {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, '/pet_type_screen');
+                        context.push('/pet_registration/type');
                       },
                       child: Text(
                         '내 반려동물 알려주기',

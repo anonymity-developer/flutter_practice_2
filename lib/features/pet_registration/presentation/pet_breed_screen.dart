@@ -7,6 +7,7 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import '../models.dart';
 import '../cubits/pet_registration_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class PetBreedScreen extends StatelessWidget {
   const PetBreedScreen({super.key});
@@ -18,7 +19,7 @@ class PetBreedScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -93,7 +94,7 @@ class PetBreedScreen extends StatelessWidget {
                             ),
                             onPressed: isButtonEnabled
                                 ? () {
-                                    Navigator.pushNamed(context, '/pet_name_and_gender_screen');
+                                    context.push('/pet_registration/name_and_gender');
                                   }
                                 : null,
                             child: Text(
@@ -233,7 +234,7 @@ class PetBreedScreen extends StatelessWidget {
         selectedBreed: selectedBreed,
         onBreedSelected: (breed) {
           onBreedSelected(breed);
-          Navigator.pop(context);
+          context.pop();
         },
       ),
     );
@@ -319,7 +320,7 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
                     width: 24,
                     height: 24,
                   ),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                 ),
               ],
             ),

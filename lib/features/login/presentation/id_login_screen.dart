@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/login_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class IdLoginScreen extends StatefulWidget {
   const IdLoginScreen({super.key});
@@ -52,11 +53,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
       listener: (context, state) {
         if (state is LoginSuccess) {
           // 로그인 성공 시 메인 화면으로 이동
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/temp_main',
-            (route) => false,
-          );
+          context.go('/temp_main');
         } else if (state is LoginFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -69,7 +66,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
         ),
         title: const Text(''),
@@ -160,7 +157,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/terms_agreement');
+                      context.push('/signup/terms_agreement');
                     },
                     child: Text(
                       '회원가입',

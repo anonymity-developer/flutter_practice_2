@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
+import 'package:go_router/go_router.dart';
 
 class SocialLoginScreen extends StatelessWidget {
   const SocialLoginScreen({super.key});
@@ -102,7 +103,7 @@ class SocialLoginScreen extends StatelessWidget {
                         // 페스룸 아이디로 계속하기 링크
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/id_login');
+                            context.push('/login/id');
                           },
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,

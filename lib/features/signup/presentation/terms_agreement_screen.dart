@@ -6,6 +6,7 @@ import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import '../cubits/signup_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class TermsAgreementScreen extends StatefulWidget {
   const TermsAgreementScreen({super.key});
@@ -47,7 +48,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -154,7 +155,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                   ),
                   onPressed: (_serviceTerms && _privacyPolicy)
                       ? () {
-                          Navigator.pushNamed(context, '/nickname');
+                          context.push('/signup/nickname');
                         }
                       : null,
                   child: Text(

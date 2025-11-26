@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/signup_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class AdditionalInfoScreen extends StatefulWidget {
   const AdditionalInfoScreen({super.key});
@@ -43,19 +44,12 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<SignupCubit, SignupState>(
       builder: (context, state) {
-        String? nickname;
-        if (state is SignupDataLoaded) {
-          nickname = state.data.nickname;
-        } else if (state is SignupDataSaved) {
-          nickname = state.data.nickname;
-        }
-
         return Scaffold(
           backgroundColor: AppColors.white,
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
           ),
           body: SafeArea(
@@ -98,7 +92,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                   ),
                   AppSpacing.heightSM,
                   DropdownButtonFormField<String>(
-                    value: _selectedGender,
+                    initialValue: _selectedGender,
                     decoration: const InputDecoration(
                       hintText: '선택하기',
                     ),
@@ -168,11 +162,7 @@ class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
                                         : _referralCodeController.text,
                                   );
 
-                              Navigator.pushNamed(
-                                context,
-                                '/signup_complete',
-                                arguments: nickname ?? '회원',
-                              );
+                              context.push('/signup/complete');
                             }
                           : null,
                       child: Text(

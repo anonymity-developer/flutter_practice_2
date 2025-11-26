@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/login_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class TempMainScreen extends StatelessWidget {
   const TempMainScreen({super.key});
@@ -15,11 +16,7 @@ class TempMainScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/social_login',
-            (route) => false,
-          ),
+          onPressed: () => context.go('/login/social'),
         ),
       ),
       body: SafeArea(
@@ -121,11 +118,7 @@ class TempMainScreen extends StatelessWidget {
                         ),
                         onPressed: () {
                           context.read<LoginCubit>().logout();
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/social_login',
-                            (route) => false,
-                          );
+                          context.go('/login/social');
                         },
                         child: Text(
                           '로그아웃',

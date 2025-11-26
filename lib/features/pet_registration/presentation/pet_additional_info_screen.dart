@@ -7,6 +7,7 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import '../cubits/pet_registration_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class PetAdditionalInfoScreen extends StatefulWidget {
   const PetAdditionalInfoScreen({super.key});
@@ -106,7 +107,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       width: 24,
                       height: 24,
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                   ),
                 ],
               ),
@@ -127,7 +128,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                           _selectedBodyType = type;
                           _checkInput();
                         });
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -208,7 +209,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
           ),
           body: SafeArea(
@@ -363,10 +364,14 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                               context
                                   .read<PetRegistrationCubit>()
                                   .updateBodyType(_selectedBodyType);
-                              Navigator.pushNamed(
-                                context,
-                                '/social_login',
-                              );
+                              
+                              // 등록 완료 후 temp_main으로 이동
+                              context.read<PetRegistrationCubit>().completeRegistration().then((_) {
+                                final state = context.read<PetRegistrationCubit>().state;
+                                if (state is PetRegistrationSuccess) {
+                                  context.go('/temp_main', extra: state.pet);
+                                }
+                              });
                             }
                           : null,
                       child: Text(

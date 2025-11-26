@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/login/repository/login_datasource.dart';
 import 'features/login/repository/login_repository.dart';
@@ -31,45 +32,140 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (context) => LoginCubit(
-            LoginRepository(LoginDataSource()),
-          ),
+        RepositoryProvider(
+          create: (context) => LoginRepository(LoginDataSource()),
         ),
-        BlocProvider(
-          create: (context) => SignupCubit(
-            SignupRepository(SignupDataSource()),
-          ),
+        RepositoryProvider(
+          create: (context) => SignupRepository(SignupDataSource()),
         ),
-        BlocProvider(
-          create: (context) => PetRegistrationCubit(
-            PetRegistrationRepository(PetRegistrationDataSource()),
-          ),
+        RepositoryProvider(
+          create: (context) =>
+              PetRegistrationRepository(PetRegistrationDataSource()),
         ),
       ],
-      child: MaterialApp(
-        title: 'Pethroom Friends',
-        theme: AppTheme.lightTheme,
-        initialRoute: '/social_login',
-        routes: {
-          '/social_login': (context) => const SocialLoginScreen(),
-          '/id_login': (context) => const IdLoginScreen(),
-          '/temp_main': (context) => const TempMainScreen(),
-          '/terms_agreement': (context) => const TermsAgreementScreen(),
-          '/nickname': (context) => const NicknameScreen(),
-          '/additional_info': (context) => const AdditionalInfoScreen(),
-          '/signup_complete': (context) {
-            final nickname = ModalRoute.of(context)?.settings.arguments as String?;
-            return SignupCompleteScreen(nickname: nickname ?? '회원');
-          },
-          '/pet_type_screen': (context) => const PetTypeScreen(),
-          '/pet_breed_screen': (context) => const PetBreedScreen(),
-          '/pet_name_and_gender_screen': (context) => const PetNameAndGenderScreen(),
-          '/pet_additional_info_screen': (context) => const PetAdditionalInfoScreen(),
-        },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => LoginCubit(context.read<LoginRepository>()),
+          ),
+        ],
+        child: MaterialApp.router(
+          title: 'Pethroom Friends',
+          theme: AppTheme.lightTheme,
+          routerConfig: _router,
+        ),
       ),
     );
   }
 }
+
+final GoRouter _router = GoRouter(
+  initialLocation: '/login/social',
+
+  // 로그인 (전역 LoginCubit 사용)
+  routes: [
+    GoRoute(
+      path: '/login',
+      redirect: (context, state) {
+        final path = state.uri.path;
+        if (path == '/login/social' || path == '/login/id') {
+          return null; 
+        }
+        return '/login/social';
+      },
+      routes: [
+        GoRoute(
+          path: 'social',
+          builder: (context, state) => const SocialLoginScreen(),
+        ),
+        GoRoute(path: 'id', builder: (context, state) => const IdLoginScreen()),
+      ],
+    ),
+
+    GoRoute(
+      path: '/temp_main',
+      builder: (context, state) {
+        return const TempMainScreen();
+      },
+    ),
+
+    // 회원가입 (signup cubit 주입)
+    ShellRoute(
+      builder: (context, state, child) => BlocProvider(
+        create: (context) => SignupCubit(context.read<SignupRepository>()),
+        child: child,
+      ),
+      routes: [
+        GoRoute(
+          path: '/signup',
+          redirect: (context, state) {
+            final path = state.uri.path;
+            if (path.startsWith('/signup') && path != '/signup') {
+              return null;
+            }
+            return '/signup/terms_agreement';
+          },
+          routes: [
+            GoRoute(
+              path: 'terms_agreement',
+              builder: (context, state) => const TermsAgreementScreen(),
+            ),
+            GoRoute(
+              path: 'nickname',
+              builder: (context, state) => const NicknameScreen(),
+            ),
+            GoRoute(
+              path: 'additional_info',
+              builder: (context, state) => const AdditionalInfoScreen(),
+            ),
+            GoRoute(
+              path: 'complete',
+              builder: (context, state) => const SignupCompleteScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    // 반려동물 등록 (pet registration cubit 주입)
+    ShellRoute(
+      builder: (context, state, child) => BlocProvider(
+        create: (context) =>
+            PetRegistrationCubit(context.read<PetRegistrationRepository>()),
+        child: child,
+      ),
+      routes: [
+        GoRoute(
+          path: '/pet_registration',
+          redirect: (context, state) {
+            final path = state.uri.path;
+            if (path.startsWith('/pet_registration') && path != '/pet_registration') {
+              return null;
+            }
+            return '/pet_registration/type';
+          },
+          routes: [
+            GoRoute(
+              path: 'type',
+              builder: (context, state) => const PetTypeScreen(),
+            ),
+            GoRoute(
+              path: 'breed',
+              builder: (context, state) => const PetBreedScreen(),
+            ),
+            GoRoute(
+              path: 'name_and_gender',
+              builder: (context, state) => const PetNameAndGenderScreen(),
+            ),
+            GoRoute(
+              path: 'additional_info',
+              builder: (context, state) => const PetAdditionalInfoScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+);

@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/signup_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class NicknameScreen extends StatefulWidget {
   const NicknameScreen({super.key});
@@ -43,7 +44,7 @@ class _NicknameScreenState extends State<NicknameScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -100,7 +101,7 @@ class _NicknameScreenState extends State<NicknameScreen> {
                           context.read<SignupCubit>().saveNickname(
                                 _nicknameController.text,
                               );
-                          Navigator.pushNamed(context, '/additional_info');
+                          context.push('/signup/additional_info');
                         }
                       : null,
                   child: Text(
