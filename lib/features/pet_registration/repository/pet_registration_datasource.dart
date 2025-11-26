@@ -49,6 +49,27 @@ class PetRegistrationDataSource {
     return [];
   }
 
+  /// 사용자 ID로 반려동물 목록 조회 (목데이터)
+  Future<List<Pet>> getPetsByUserId(String userId) async {
+    // 목데이터: test2(id: '2')의 펫 정보
+    if (userId == '2') {
+      return [
+        Pet(
+          id: '2',
+          type: PetType.dog,
+          breed: '강아지2',
+          name: '테스트2 강아지',
+          gender: PetGender.male,
+          isNeutered: true,
+          birthday: '2020-01-01',
+          weight: 10,
+          bodyType: PetBodyType.ideal,
+        ),
+      ];
+    }
+    return [];
+  }
+
   /// 반려동물 정보 수정 (API 연동 시 사용)
   Future<Pet> updatePet(Pet pet) async {
     // TODO: API 연동 시 구현

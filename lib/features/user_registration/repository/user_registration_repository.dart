@@ -14,4 +14,9 @@ class UserRegistrationRepository {
     // API 연동 시 여기서 추가 검증/변환 가능
     return dataSource.completeUserRegistration(data);
   }
+
+  /// 사용자 ID로 유저 등록 정보 조회
+  Future<UserRegistrationData?> getUserRegistrationByUserId(String userId) async {
+    return dataSource.getUserRegistrationByUserId(userId);
+  }
 }

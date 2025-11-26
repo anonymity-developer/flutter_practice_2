@@ -33,5 +33,10 @@ class PetRegistrationRepository {
   List<String> getBreeds(PetType type) {
     return dataSource.getBreeds(type);
   }
+
+  /// 사용자 ID로 반려동물 목록 조회
+  Future<List<Pet>> getPetsByUserId(String userId) async {
+    return dataSource.getPetsByUserId(userId);
+  }
 }
 

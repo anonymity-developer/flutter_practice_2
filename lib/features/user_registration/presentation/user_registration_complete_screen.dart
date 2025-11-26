@@ -24,65 +24,8 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // _showSignupInfoAlert();
     });
   }
-
-  // void _showSignupInfoAlert() {
-  //   final state = context.read<SignupCubit>().state;
-  //   String summary = '회원가입 정보\n━━━━━━━━━━━━━━━━\n';
-
-  //   SignupData? data;
-  //   if (state is SignupDataLoaded) {
-  //     data = state.data;
-  //   } else if (state is SignupDataSaved) {
-  //     data = state.data;
-  //   } else if (state is SignupInitial) {
-  //     data = state.data;
-  //   }
-
-  //   if (data != null) {
-  //     if (data.nickname != null) {
-  //       summary += '닉네임: ${data.nickname}\n';
-  //     }
-  //     if (data.birthday != null) {
-  //       summary += '생일: ${data.birthday}\n';
-  //     }
-  //     if (data.gender != null) {
-  //       summary += '성별: ${data.gender}\n';
-  //     }
-  //     if (data.referralCode != null && data.referralCode!.isNotEmpty) {
-  //       summary += '추천코드: ${data.referralCode}\n';
-  //     }
-
-  //     summary += '\n약관 동의\n━━━━━━━━━━━━━━━━\n';
-  //     summary += '서비스 이용약관: ${data.serviceTerms ? "✅" : "❌"}\n';
-  //     summary += '개인정보 수집 및 이용: ${data.privacyPolicy ? "✅" : "❌"}\n';
-  //     summary += '위치정보 이용: ${data.locationInfo ? "✅" : "❌"}\n';
-  //     summary += '마케팅 정보 수신: ${data.marketingInfo ? "✅" : "❌"}\n';
-  //   } else {
-  //     summary += '저장된 정보가 없습니다.\n';
-  //   }
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text('회원가입 정보 확인'),
-  //       content: SingleChildScrollView(
-  //         child: Text(
-  //           summary,
-  //           style: const TextStyle(fontSize: 14),
-  //         ),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.of(context).pop(),
-  //           child: const Text('확인'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +111,7 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                   // 다음에 할래요 링크
                   TextButton(
                     onPressed: () {
-                      // TODO: 메인 화면으로 이동
+                      context.go('/main');
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
