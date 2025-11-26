@@ -36,24 +36,24 @@ class MyApp extends StatelessWidget {
       providers: [
         RepositoryProvider(
           create: (context) => LoginRepository(LoginDataSource()),
-        ),
+            ),
         RepositoryProvider(
           create: (context) => UserRegistrationRepository(UserRegistrationDataSource()),
         ),
         RepositoryProvider(
           create: (context) =>
               PetRegistrationRepository(PetRegistrationDataSource()),
-        ),
+            ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => LoginCubit(context.read<LoginRepository>()),
-          ),
-        ],
+        ),
+      ],
         child: MaterialApp.router(
-          title: 'Pethroom Friends',
-          theme: AppTheme.lightTheme,
+        title: 'Pethroom Friends',
+        theme: AppTheme.lightTheme,
           routerConfig: _router,
         ),
       ),

@@ -8,11 +8,10 @@ class UserRegistrationRepository {
 
   UserRegistrationRepository(this.dataSource);
 
-  /// 유저 등록 완료 (API 연동 시 사용)
-  Future<void> completeUserRegistration(UserRegistrationData data) async {
-    // TODO: API 연동 시 구현
+  /// 유저 등록 완료
+  Future<void> completeUserRegistration(String userId, UserRegistrationData data) async {
     // API 연동 시 여기서 추가 검증/변환 가능
-    return dataSource.completeUserRegistration(data);
+    return dataSource.completeUserRegistration(userId, data);
   }
 
   /// 사용자 ID로 유저 등록 정보 조회

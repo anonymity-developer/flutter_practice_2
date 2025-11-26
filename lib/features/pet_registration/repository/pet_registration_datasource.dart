@@ -35,10 +35,34 @@ class PetRegistrationDataSource {
   List<String> getBreeds(PetType type) {
     return type == PetType.dog ? _dogBreeds : _catBreeds;
   }
-  /// 반려동물 등록 (API 연동 시 사용)
-  Future<Pet> registerPet(Pet pet) async {
-    // TODO: API 연동 시 구현
-    // 예: return await apiClient.post('/pets', pet.toJson());
+  // 인메모리 저장소 (등록 완료한 펫 정보)
+  final Map<String, List<Pet>> _userPets = {
+    // test2 초기 데이터 (기존 목데이터 유지)
+    '2': [
+      Pet(
+        id: '2',
+        type: PetType.dog,
+        breed: '강아지2',
+        name: '초코',
+        gender: PetGender.male,
+        isNeutered: true,
+        birthday: '2020-01-15',
+        weight: 10,
+        bodyType: PetBodyType.ideal,
+      ),
+    ],
+  };
+
+  /// 반려동물 등록 (인메모리 저장)
+  Future<Pet> registerPet(String userId, Pet pet) async {
+    // 인메모리에 저장
+    _userPets.putIfAbsent(userId, () => []).add(pet);
+    
+    // 나중에 API 연동 시
+    // return await apiClient.post('/pets', {
+    //   'userId': userId,
+    //   ...pet.toJson(),
+    // });
     return pet;
   }
 
@@ -49,25 +73,10 @@ class PetRegistrationDataSource {
     return [];
   }
 
-  /// 사용자 ID로 반려동물 목록 조회 (목데이터)
+  /// 사용자 ID로 반려동물 목록 조회
   Future<List<Pet>> getPetsByUserId(String userId) async {
-    // 목데이터: test2(id: '2')의 펫 정보
-    if (userId == '2') {
-      return [
-        Pet(
-          id: '2',
-          type: PetType.dog,
-          breed: '강아지2',
-          name: '테스트2 강아지',
-          gender: PetGender.male,
-          isNeutered: true,
-          birthday: '2020-01-01',
-          weight: 10,
-          bodyType: PetBodyType.ideal,
-        ),
-      ];
-    }
-    return [];
+    // 인메모리에서 조회
+    return _userPets[userId] ?? [];
   }
 
   /// 반려동물 정보 수정 (API 연동 시 사용)

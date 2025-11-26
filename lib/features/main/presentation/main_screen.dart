@@ -7,10 +7,60 @@ import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:flutter_application_2/features/pet_registration/repository/pet_registration_repository.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'package:flutter_application_2/features/user_registration/repository/user_registration_repository.dart';
+import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:go_router/go_router.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  Future<UserRegistrationData?>? _userRegistrationFuture;
+  Future<List<Pet>>? _petsFuture;
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 첫 번째 빌드 시에만 데이터 로드
+    if (!_isInitialized) {
+      _loadData();
+      _isInitialized = true;
+    }
+  }
+
+  void _loadData() {
+    // Future를 생성해서 State에 저장
+    final loginState = context.read<LoginCubit>().state;
+    if (loginState is LoginSuccess) {
+      final userId = loginState.user.id;
+      _userRegistrationFuture = context
+          .read<UserRegistrationRepository>()
+          .getUserRegistrationByUserId(userId);
+      _petsFuture = context
+          .read<PetRegistrationRepository>()
+          .getPetsByUserId(userId);
+    }
+  }
+
+  void _refreshData() {
+    final loginState = context.read<LoginCubit>().state;
+    if (loginState is LoginSuccess) {
+      final userId = loginState.user.id;
+      setState(() {
+        // 새로운 Future를 생성 → FutureBuilder가 재실행됨
+        _userRegistrationFuture = context
+            .read<UserRegistrationRepository>()
+            .getUserRegistrationByUserId(userId);
+        _petsFuture = context
+            .read<PetRegistrationRepository>()
+            .getPetsByUserId(userId);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,9 +141,7 @@ class MainScreen extends StatelessWidget {
                       AppSpacing.heightXS,
 
                       FutureBuilder(
-                        future: context
-                            .read<UserRegistrationRepository>()
-                            .getUserRegistrationByUserId(user.id),
+                        future: _userRegistrationFuture, // State에 저장된 Future 사용
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -217,18 +265,40 @@ class MainScreen extends StatelessWidget {
 
                       AppSpacing.heightLG,
 
-                      Text(
-                        '반려동물 정보',
-                        style: AppTextStyles.bodyLarge(
-                          color: AppColors.secondary_color_gray_10,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            '반려동물 정보',
+                            style: AppTextStyles.bodyLarge(
+                              color: AppColors.secondary_color_gray_10,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await context.push('/pet_registration/type');
+                              // 펫 등록 플로우에서 돌아왔을 때 데이터 새로고침
+                              _refreshData();
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              '+ 반려동물 등록',
+                              style: AppTextStyles.bodyMedium(
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       AppSpacing.heightXS,
 
                       FutureBuilder<List<Pet>>(
-                        future: context
-                            .read<PetRegistrationRepository>()
-                            .getPetsByUserId(user.id),
+                        future: _petsFuture, // State에 저장된 Future 사용
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {

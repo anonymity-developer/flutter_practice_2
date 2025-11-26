@@ -5,6 +5,9 @@ import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/user_registration_cubit.dart';
+import 'package:flutter_application_2/features/user_registration/repository/user_registration_repository.dart';
+import 'package:flutter_application_2/features/user_registration/models.dart';
+import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class UserRegistrationCompleteScreen extends StatefulWidget {
@@ -110,8 +113,35 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
 
                   // 다음에 할래요 링크
                   TextButton(
-                    onPressed: () {
-                      context.go('/main');
+                    onPressed: () async {
+                      // 유저 등록 정보 저장
+                      final cubit = context.read<UserRegistrationCubit>();
+                      final loginState = context.read<LoginCubit>().state;
+                      if (loginState is LoginSuccess) {
+                        final userId = loginState.user.id;
+                        final state = cubit.state;
+                        UserRegistrationData? registrationData;
+                        
+                        if (state is UserRegistrationDataLoaded) {
+                          registrationData = state.data;
+                        } else if (state is UserRegistrationDataSaved) {
+                          registrationData = state.data;
+                        } else if (state is UserRegistrationInitial) {
+                          registrationData = state.data;
+                        }
+                        
+                        if (registrationData != null) {
+                          await context.read<UserRegistrationRepository>()
+                            .completeUserRegistration(userId, registrationData);
+                          
+                          if (!context.mounted) return;
+                          context.go('/main');
+                        } else {
+                          context.go('/main');
+                        }
+                      } else {
+                        context.go('/main');
+                      }
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,

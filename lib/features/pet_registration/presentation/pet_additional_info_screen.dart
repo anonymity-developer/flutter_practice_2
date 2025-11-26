@@ -7,6 +7,8 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import '../cubits/pet_registration_cubit.dart';
+import '../repository/pet_registration_repository.dart';
+import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class PetAdditionalInfoScreen extends StatefulWidget {
@@ -127,7 +129,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                         setState(() {
                           _selectedBodyType = type;
                           _checkInput();
-                        });
+    });
                         context.pop();
                       },
                       child: Container(
@@ -297,7 +299,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       hintText: '체형을 선택해 주세요',
                       hintStyle: AppTextStyles.bodyMedium(
                         color: AppColors.secondary_color_gray_5,
-                      ),
+                  ),
                       suffixIcon: const Icon(
                         Icons.arrow_drop_down,
                         color: AppColors.secondary_color_gray_7,
@@ -326,7 +328,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
-                      ),
+                    ),
                     ),
                     onTap: () => _showBodyTypeModal(context),
                   ),
@@ -347,7 +349,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                         ),
                       ),
                       onPressed: _isButtonEnabled
-                          ? () {
+                          ? () async {
                               final weight = double.tryParse(
                                 _weightController.text,
                               );
@@ -366,12 +368,22 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   .updateBodyType(_selectedBodyType);
                               
                               // 등록 완료 후 main으로 이동
-                              context.read<PetRegistrationCubit>().completeRegistration().then((_) {
-                                final state = context.read<PetRegistrationCubit>().state;
-                                if (state is PetRegistrationSuccess) {
-                                  context.go('/main', extra: state.pet);
+                              context.read<PetRegistrationCubit>().completeRegistration();
+                              final state = context.read<PetRegistrationCubit>().state;
+                              if (state is PetRegistrationSuccess) {
+                                // 펫 정보 저장
+                                final loginState = context.read<LoginCubit>().state;
+                                if (loginState is LoginSuccess) {
+                                  final userId = loginState.user.id;
+                                  await context.read<PetRegistrationRepository>()
+                                    .registerPet(userId, state.pet);
+                                  
+                                  if (!context.mounted) return;
+                                  context.go('/main');
+                                } else {
+                                  context.go('/main');
                                 }
-                              });
+                              }
                             }
                           : null,
                       child: Text(

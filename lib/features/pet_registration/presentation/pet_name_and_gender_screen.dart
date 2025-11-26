@@ -54,9 +54,9 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
       body: SafeArea(
         child: Padding(
           padding: AppSpacing.paddingHorizontalLG,
-          child: Column(
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          children: [
               AppSpacing.heightSM,
               Text(
                 '반려동물의 이름과 성별을\n알려 주세요',
@@ -85,7 +85,7 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
               AppSpacing.heightMD,
 
               // 성별 선택
-              Text(
+            Text(
                 '성별',
                 style: AppTextStyles.bodyMedium(
                   color: AppColors.black,
@@ -165,8 +165,8 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
                         ),
                       ),
                     ),
-                  ),
-                ],
+            ),
+          ],
               ),
               AppSpacing.heightMD,
 

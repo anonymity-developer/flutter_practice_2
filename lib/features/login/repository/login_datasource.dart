@@ -10,7 +10,6 @@ class LoginDataSource {
       'id': '1',
       'name': '테스트1',
       'phone': '010-0000-0001',
-      'isRegistered': false, // 앱 등록 안 함
     },
     {
       'userId': 'test2',
@@ -18,7 +17,6 @@ class LoginDataSource {
       'id': '2',
       'name': '테스트2',
       'phone': '010-0000-0002',
-      'isRegistered': true, // 앱 등록 함
     },
   ];
 
@@ -30,7 +28,6 @@ class LoginDataSource {
           id: userMap['id'] as String,
           name: userMap['name'] as String,
           phone: userMap['phone'] as String?,
-          isRegistered: userMap['isRegistered'] as bool,
         );
       }
     }

@@ -89,17 +89,11 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
     emit(PetRegistrationInitial());
   }
 
-  /// 반려동물 등록 완료 (API 연동 시 Repository ↔ DataSource 연결)
-  Future<void> completeRegistration() async {
+  /// 반려동물 등록 완료 (상태만 변경, 실제 저장은 화면에서 처리)
+  void completeRegistration() {
     final currentPet = _getCurrentPet();
     if (currentPet != null) {
-      emit(PetRegistrationLoading());
-      try {
-        final savedPet = await repository.registerPet(currentPet);
-        emit(PetRegistrationSuccess(savedPet));
-      } catch (e) {
-        emit(PetRegistrationFailure(e.toString()));
-      }
+      emit(PetRegistrationSuccess(currentPet));
     }
   }
 

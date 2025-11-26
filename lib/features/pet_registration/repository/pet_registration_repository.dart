@@ -9,9 +9,9 @@ class PetRegistrationRepository {
   PetRegistrationRepository(this.dataSource);
 
   /// 반려동물 등록
-  Future<Pet> registerPet(Pet pet) async {
-    // TODO: 필요 시 검증/데이터 변환 로직 추가
-    return dataSource.registerPet(pet);
+  Future<Pet> registerPet(String userId, Pet pet) async {
+    // 필요 시 검증/데이터 변환 로직 추가
+    return dataSource.registerPet(userId, pet);
   }
 
   /// 반려동물 목록 조회
