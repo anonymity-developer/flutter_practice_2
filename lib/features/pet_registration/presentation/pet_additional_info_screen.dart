@@ -9,7 +9,7 @@ import 'package:flutter_application_2/features/pet_registration/models.dart';
 import '../cubits/pet_registration_cubit.dart';
 import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
+// import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
 
 class PetAdditionalInfoScreen extends StatefulWidget {
   const PetAdditionalInfoScreen({super.key});
@@ -378,7 +378,8 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   final state = context.read<PetRegistrationCubit>().state;
                                   switch (state) {
                                     case PetRegistrationSuccess():
-                                      await context.read<MainScreenCubit>().refreshPets(userId);
+                                      // [*] 메인 수동 새로 고침 
+                                      // await context.read<MainScreenCubit>().refreshPets(userId);
                                       if (!context.mounted) return;
                                       context.go('/main');
                                     case PetRegistrationFailure(message: final message):

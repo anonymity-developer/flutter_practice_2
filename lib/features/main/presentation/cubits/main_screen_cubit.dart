@@ -3,12 +3,37 @@ import 'package:flutter_application_2/features/user_registration/repository/user
 import 'package:flutter_application_2/features/pet_registration/repository/pet_registration_repository.dart';
 import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
+import 'dart:async';
 
 /// MainScreenCubit: 메인 상태 관리
 class MainScreenCubit extends Cubit<MainState> {
   final UserRegistrationRepository userRegistrationRepository;
   final PetRegistrationRepository petRegistrationRepository;
   String? _currentUserId;
+
+  /// Stream 구독 관리
+  StreamSubscription<String>? _userUpdateSubscription;
+  StreamSubscription<String>? _petUpdateSubscription;
+
+  MainScreenCubit(this.userRegistrationRepository, this.petRegistrationRepository) : super(MainScreenInitial()) {
+    _userUpdateSubscription = userRegistrationRepository.userUpdates.listen((userId) {
+      if (_currentUserId == userId && state is MainScreenSuccess) {
+        refreshUser(userId);
+      }
+    });
+    _petUpdateSubscription = petRegistrationRepository.petUpdates.listen((userId) {
+      if (_currentUserId == userId && state is MainScreenSuccess) {
+        refreshPets(userId);
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _userUpdateSubscription?.cancel();
+    _petUpdateSubscription?.cancel();
+    return super.close();
+  }
 
   /// 유저 등록 정보 및 펫 리스트 로드
   Future<void> loadData(String userId) async {
@@ -66,10 +91,6 @@ class MainScreenCubit extends Cubit<MainState> {
     }
   }
 
-  MainScreenCubit(
-    this.userRegistrationRepository,
-    this.petRegistrationRepository,
-  ) : super(MainScreenInitial());
 }
 
 /// MainState: 메인 상태

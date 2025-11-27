@@ -1,3 +1,4 @@
+import 'dart:async';
 import '../models.dart';
 import 'pet_registration_datasource.dart';
 
@@ -5,13 +6,18 @@ import 'pet_registration_datasource.dart';
 /// 나중에 API 연동 시 Repository에서 추가 로직을 담당
 class PetRegistrationRepository {
   final PetRegistrationDataSource dataSource;
+  final _petUpdateController = StreamController<String>.broadcast();
 
   PetRegistrationRepository(this.dataSource);
 
+  /// 펫 정보 업데이트 스트림 (userId를 emit)
+  Stream<String> get petUpdates => _petUpdateController.stream;
+  
   /// 반려동물 등록
   Future<Pet> registerPet(String userId, Pet pet) async {
-    // 필요 시 검증/데이터 변환 로직 추가
-    return dataSource.registerPet(userId, pet);
+    final result = await dataSource.registerPet(userId, pet);
+    _petUpdateController.add(userId); // 변경 알림
+    return result;
   }
 
   /// 반려동물 목록 조회
@@ -37,6 +43,11 @@ class PetRegistrationRepository {
   /// 사용자 ID로 반려동물 목록 조회
   Future<List<Pet>> getPetDataByUserId(String userId) async {
     return dataSource.getPetDataByUserId(userId);
+  }
+
+  /// 리소스 정리
+  void dispose() {
+    _petUpdateController.close();
   }
 }
 

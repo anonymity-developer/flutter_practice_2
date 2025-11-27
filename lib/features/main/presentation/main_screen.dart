@@ -101,7 +101,7 @@ class MainScreen extends StatelessWidget {
                         children: [
                           AppSpacing.heightLG,
                           Text(
-                            '${user.name}님 안녕하세요!',
+                            '${userRegistrationData.nickname}님 안녕하세요!',
                             style: AppTextStyles.h2(color: AppColors.black),
                           ),
                           AppSpacing.heightMD,
@@ -148,11 +148,49 @@ class MainScreen extends StatelessWidget {
                           ),
                           AppSpacing.heightLG,
 
-                          Text(
-                            '앱 등록 정보',
-                            style: AppTextStyles.bodyLarge(
-                              color: AppColors.secondary_color_gray_10,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '앱 등록 정보',
+                                style: AppTextStyles.bodyLarge(
+                                  color: AppColors.secondary_color_gray_10,
+                                ),
+                              ),
+                              // 유저 정보가 있을 때만 수정 버튼 표시
+                              if (userRegistrationData.nickname != null ||
+                                  userRegistrationData.birthday != null ||
+                                  userRegistrationData.gender != null)
+                                TextButton(
+                                  onPressed: () {
+                                    context.push('/user_registration');
+                                    
+                                    // [*] 메인 수동 새로 고침 
+                                    // if (!context.mounted) return;
+                                    // final loginState = context.read<LoginCubit>().state;
+                                    // if (loginState is LoginSuccess) {
+                                    //   context.read<MainScreenCubit>()
+                                    //       .refreshUser(loginState.user.id);
+                                    // }
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    '+ 등록 수정',
+                                    style: AppTextStyles.bodyMedium(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                           AppSpacing.heightXS,
 
@@ -174,20 +212,20 @@ class MainScreen extends StatelessWidget {
                                 onPressed: () async {
                                   await context.push('/pet_registration/type');
 
-                                  // 펫 등록 후 새로고침
-                                  if (!context.mounted) return;
-                                  final state = context.read<MainScreenCubit>().state;
-                                  switch (state) {
-                                    case MainScreenSuccess():
-                                      context.read<MainScreenCubit>().refreshPets(loginState.user.id);
-                                    case MainScreenFailure(message: final message):
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(message)),
-                                      );
-                                    case MainScreenInitial():
-                                    case MainScreenLoading():
-                                      break;
-                                  }
+                                  // [*] 메인 수동 새로 고침 
+                                  // if (!context.mounted) return;
+                                  // final state = context.read<MainScreenCubit>().state;
+                                  // switch (state) {
+                                  //   case MainScreenSuccess():
+                                  //     context.read<MainScreenCubit>().refreshPets(loginState.user.id);
+                                  //   case MainScreenFailure(message: final message):
+                                  //     ScaffoldMessenger.of(context).showSnackBar(
+                                  //       SnackBar(content: Text(message)),
+                                  //     );
+                                  //   case MainScreenInitial():
+                                  //   case MainScreenLoading():
+                                  //     break;
+                                  // }
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(

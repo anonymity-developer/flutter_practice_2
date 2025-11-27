@@ -6,6 +6,7 @@ import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/user_registration_cubit.dart';
 import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
+// import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class UserRegistrationCompleteScreen extends StatefulWidget {
@@ -121,6 +122,9 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                         final userId = user.id;
                         await context.read<UserRegistrationCubit>().completeUserRegistration(userId);
                         if (!context.mounted) return;
+                        // [*] 메인 수동 새로 고침 
+                        // context.read<MainScreenCubit>().refreshUser(userId);
+                        // if (!context.mounted) return;
                         context.go('/main');
                       case LoginFailure(message: final message):
                         ScaffoldMessenger.of(context).showSnackBar(
