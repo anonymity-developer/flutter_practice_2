@@ -86,45 +86,45 @@ Future<void> completeUserRegistration(String userId) async {
 }
   /// 현재 State에서 UserRegistrationData 가져오기
   UserRegistrationData _getCurrentData() {
-    if (state is UserRegistrationInitial) {
-      return (state as UserRegistrationInitial).data;
-    } else if (state is UserRegistrationDataLoaded) {
-      return (state as UserRegistrationDataLoaded).data;
-    } else if (state is UserRegistrationDataSaved) {
-      return (state as UserRegistrationDataSaved).data;
-    }
-    return const UserRegistrationData();
+    return switch (state) {
+      UserRegistrationInitial(data: final data) => data,
+      UserRegistrationDataLoaded(data: final data) => data,
+      UserRegistrationDataSaved(data: final data) => data,
+      UserRegistrationLoading() => const UserRegistrationData(),
+      UserRegistrationFailure() => const UserRegistrationData(),
+    };
   }
 }
 
 /// UserRegistrationState: 유저 등록 상태
-abstract class UserRegistrationState {}
+sealed class UserRegistrationState {}
 
 /// 초기 상태 (빈 UserRegistrationData)
-class UserRegistrationInitial extends UserRegistrationState {
+final class UserRegistrationInitial extends UserRegistrationState {
   final UserRegistrationData data;
 
   UserRegistrationInitial(this.data);
 }
 
 /// 로딩 중
-class UserRegistrationLoading extends UserRegistrationState {}
+final class UserRegistrationLoading extends UserRegistrationState {}
 
 /// 유저 등록 정보 로드 완료
-class UserRegistrationDataLoaded extends UserRegistrationState {
+final class UserRegistrationDataLoaded extends UserRegistrationState {
   final UserRegistrationData data;
 
   UserRegistrationDataLoaded(this.data);
 }
 
 /// 유저 등록 정보 저장 완료
-class UserRegistrationDataSaved extends UserRegistrationState {
+final class UserRegistrationDataSaved extends UserRegistrationState {
   final UserRegistrationData data;
 
   UserRegistrationDataSaved(this.data);
 }
 
-class UserRegistrationFailure extends UserRegistrationState {
+/// 유저 등록 실패
+final class UserRegistrationFailure extends UserRegistrationState {
   final String message;
 
   UserRegistrationFailure(this.message);

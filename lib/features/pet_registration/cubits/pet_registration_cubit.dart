@@ -106,10 +106,13 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
 
   /// 현재 State에서 Pet 가져오기
   Pet? _getCurrentPet() {
-    if (state is PetRegistrationLoaded) {
-      return (state as PetRegistrationLoaded).pet;
-    }
-    return null;
+    return switch (state) {
+      PetRegistrationLoaded(pet: final pet) => pet,
+      PetRegistrationInitial() => null,
+      PetRegistrationLoading() => null,
+      PetRegistrationSuccess() => null,
+      PetRegistrationFailure() => null,
+    };
   }
 
   /// 품종 목록 조회
@@ -119,30 +122,30 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
 }
 
 /// PetRegistrationState: 반려동물 등록 상태
-abstract class PetRegistrationState {}
+sealed class PetRegistrationState {}
 
 /// 초기 상태
-class PetRegistrationInitial extends PetRegistrationState {}
+final class PetRegistrationInitial extends PetRegistrationState {}
 
 /// 등록 중 (Pet 정보 포함)
-class PetRegistrationLoaded extends PetRegistrationState {
+final class PetRegistrationLoaded extends PetRegistrationState {
   final Pet pet;
 
   PetRegistrationLoaded(this.pet);
 }
 
 /// 로딩 중
-class PetRegistrationLoading extends PetRegistrationState {}
+final class PetRegistrationLoading extends PetRegistrationState {}
 
 /// 등록 성공
-class PetRegistrationSuccess extends PetRegistrationState {
+final class PetRegistrationSuccess extends PetRegistrationState {
   final Pet pet;
 
   PetRegistrationSuccess(this.pet);
 }
 
 /// 등록 실패
-class PetRegistrationFailure extends PetRegistrationState {
+final class PetRegistrationFailure extends PetRegistrationState {
   final String message;
 
   PetRegistrationFailure(this.message);

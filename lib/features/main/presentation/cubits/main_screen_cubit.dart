@@ -73,16 +73,16 @@ class MainScreenCubit extends Cubit<MainState> {
 }
 
 /// MainState: 메인 상태
-abstract class MainState {}
+sealed class MainState {}
 
 /// 초기 상태
-class MainScreenInitial extends MainState {}
+final class MainScreenInitial extends MainState {}
 
 /// 로딩 중
-class MainScreenLoading extends MainState {}
+final class MainScreenLoading extends MainState {}
 
 /// 성공 상태
-class MainScreenSuccess extends MainState {
+final class MainScreenSuccess extends MainState {
   final UserRegistrationData userData;
   final List<Pet> pets;
 
@@ -90,7 +90,7 @@ class MainScreenSuccess extends MainState {
 }
 
 /// 실패 상태
-class MainScreenFailure extends MainState {
+final class MainScreenFailure extends MainState {
   final String message;
 
   MainScreenFailure(this.message);

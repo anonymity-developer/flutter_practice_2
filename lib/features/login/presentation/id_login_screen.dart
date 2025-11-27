@@ -51,22 +51,25 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) async {
-        if (state is LoginSuccess) {
-          
-          if (!context.mounted) return; // 위젯이 dispose되었으면 종료
-          
-          if (state.isRegistered) {
-            // 등록된 유저 : 메인 화면
-            context.go('/main');
-          } else {
-            // 미등록 유저 : 유저 등록 플로우
-            context.go('/user_registration');
-          }
-        } else if (state is LoginFailure) {
-          if (!context.mounted) return; // 위젯이 dispose되었으면 종료
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+        switch (state) {
+          case LoginSuccess(isRegistered: final isRegistered):
+            if (!context.mounted) return; // 위젯이 dispose되었으면 종료
+            if (isRegistered) {
+              // 등록된 유저 : 메인 화면
+              context.go('/main');
+            } else {
+              // 미등록 유저 : 유저 등록 플로우
+              context.go('/user_registration');
+            }
+          case LoginFailure(message: final message):
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(message)),
+            );
+          case LoginInitial():
+          case LoginLoading():
+
+            break;
         }
       },
       child: Scaffold(

@@ -368,22 +368,34 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   .updateBodyType(_selectedBodyType);
 
                               final loginState = context.read<LoginCubit>().state;
-                              if (loginState is LoginSuccess) {
-                                final userId = loginState.user.id;
+                              switch (loginState) {
+                                case LoginSuccess(user: final user):
+                                  final userId = user.id;
 
-                                await context.read<PetRegistrationCubit>().completePetRegistration(userId);
-                                if (!context.mounted) return; // 비동기 작업중에 위젯이 dispose되었는지 확인
-
-                                final state = context.read<PetRegistrationCubit>().state; // 펫 등록 cubit 최신 상태 확인
-                                if (state is PetRegistrationSuccess) {
-                                  await context.read<MainScreenCubit>().refreshPets(loginState.user.id); // 메인 화면 펫 리스트 새로고침
+                                  await context.read<PetRegistrationCubit>().completePetRegistration(userId);
                                   if (!context.mounted) return;
-                                  context.go('/main'); // 펫 등록 후 메인 화면으로 이동
-                                } else if (state is PetRegistrationFailure) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(state.message)),
-                                  );
-                                }
+
+                                  final state = context.read<PetRegistrationCubit>().state;
+                                  switch (state) {
+                                    case PetRegistrationSuccess():
+                                      await context.read<MainScreenCubit>().refreshPets(userId);
+                                      if (!context.mounted) return;
+                                      context.go('/main');
+                                    case PetRegistrationFailure(message: final message):
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(message)),
+                                      );
+                                    case PetRegistrationInitial():
+                                    case PetRegistrationLoading():
+                                    case PetRegistrationLoaded():
+
+                                      break;
+                                  }
+                                case LoginInitial():
+                                case LoginLoading():
+                                case LoginFailure():
+                                  // 로그인 실패나 초기 상태는 처리하지 않음
+                                  break;
                               }
                             }
                           : null,

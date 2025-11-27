@@ -16,11 +16,16 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, loginState) {
-        // 로그인 성공 시 데이터 로드
-        if (loginState is LoginSuccess) {
-          context.read<MainScreenCubit>().loadData(loginState.user.id);
-        } else if (loginState is LoginInitial) {
-          context.read<MainScreenCubit>().reset();
+        switch (loginState) {
+          case LoginSuccess(user: final user):
+            // 로그인 성공 시 데이터 로드
+            context.read<MainScreenCubit>().loadData(user.id);
+          case LoginInitial():
+            // 로그아웃 시 상태 초기화
+            context.read<MainScreenCubit>().reset();
+          case LoginLoading():
+          case LoginFailure():
+            break;
         }
       },
       child: Scaffold(
@@ -75,10 +80,18 @@ class MainScreen extends StatelessWidget {
                     );
                   }
 
-                  final userRegistrationData = state is MainScreenSuccess
-                      ? state.userData
-                      : const UserRegistrationData();
-                  final pets = state is MainScreenSuccess ? state.pets : [];
+                  final userRegistrationData = switch (state) {
+                    MainScreenSuccess(userData: final data) => data,
+                    MainScreenInitial() => const UserRegistrationData(),
+                    MainScreenLoading() => const UserRegistrationData(),
+                    MainScreenFailure() => const UserRegistrationData(),
+                  };
+                  final pets = switch (state) {
+                    MainScreenSuccess(pets: final petList) => petList,
+                    MainScreenInitial() => <Pet>[],
+                    MainScreenLoading() => <Pet>[],
+                    MainScreenFailure() => <Pet>[],
+                  };
 
                   return SingleChildScrollView(
                     child: Padding(
@@ -164,12 +177,16 @@ class MainScreen extends StatelessWidget {
                                   // 펫 등록 후 새로고침
                                   if (!context.mounted) return;
                                   final state = context.read<MainScreenCubit>().state;
-                                  if (state is MainScreenSuccess) {
-                                    context.read<MainScreenCubit>().refreshPets(loginState.user.id);
-                                  } else if (state is MainScreenFailure) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(state.message)),
-                                    );
+                                  switch (state) {
+                                    case MainScreenSuccess():
+                                      context.read<MainScreenCubit>().refreshPets(loginState.user.id);
+                                    case MainScreenFailure(message: final message):
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(message)),
+                                      );
+                                    case MainScreenInitial():
+                                    case MainScreenLoading():
+                                      break;
                                   }
                                 },
                                 style: TextButton.styleFrom(

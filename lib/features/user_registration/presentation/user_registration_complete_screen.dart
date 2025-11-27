@@ -38,14 +38,16 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
           child: BlocBuilder<UserRegistrationCubit, UserRegistrationState>(
             builder: (context, state) {
               // State에서 닉네임 가져오기
-              String nickname = widget.nickname; // 기본값
-              if (state is UserRegistrationDataLoaded) {
-                nickname = state.data.nickname ?? widget.nickname;
-              } else if (state is UserRegistrationDataSaved) {
-                nickname = state.data.nickname ?? widget.nickname;
-              } else if (state is UserRegistrationInitial) {
-                nickname = state.data.nickname ?? widget.nickname;
-              }
+              final nickname = switch (state) {
+                UserRegistrationDataLoaded(data: final data) =>
+                  data.nickname ?? widget.nickname,
+                UserRegistrationDataSaved(data: final data) =>
+                  data.nickname ?? widget.nickname,
+                UserRegistrationInitial(data: final data) =>
+                  data.nickname ?? widget.nickname,
+                UserRegistrationLoading() => widget.nickname,
+                UserRegistrationFailure() => widget.nickname,
+              };
 
               return Column(
                 children: [
@@ -114,15 +116,20 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                     onPressed: () async {
 
                     final loginState = context.read<LoginCubit>().state;
-                    if (loginState is LoginSuccess) {
-                      final userId = loginState.user.id;
-                      await context.read<UserRegistrationCubit>().completeUserRegistration(userId);
-                      if (!context.mounted) return;
-                      context.go('/main');
-                    } else if (loginState is LoginFailure){
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(loginState.message)),
-                      );
+                    switch (loginState) {
+                      case LoginSuccess(user: final user):
+                        final userId = user.id;
+                        await context.read<UserRegistrationCubit>().completeUserRegistration(userId);
+                        if (!context.mounted) return;
+                        context.go('/main');
+                      case LoginFailure(message: final message):
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(message)),
+                        );
+                      case LoginInitial():
+                      case LoginLoading():
+
+                        break;
                     }
 
                     },

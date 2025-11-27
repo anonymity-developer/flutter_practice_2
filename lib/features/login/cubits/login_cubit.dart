@@ -37,16 +37,16 @@ class LoginCubit extends Cubit<LoginState> {
 }
 
 /// LoginState: 로그인 상태
-abstract class LoginState {}
+sealed class LoginState {}
 
 /// 초기 상태
-class LoginInitial extends LoginState {}
+final class LoginInitial extends LoginState {}
 
 /// 로딩 중 상태
-class LoginLoading extends LoginState {}
+final class LoginLoading extends LoginState {}
 
 /// 성공 상태 (사용자 정보 포함)
-class LoginSuccess extends LoginState {
+final class LoginSuccess extends LoginState {
   final User user;
   final bool isRegistered; // 유저 등록 여부
 
@@ -54,7 +54,7 @@ class LoginSuccess extends LoginState {
 }
 
 /// 실패 상태 (에러 메시지 포함)
-class LoginFailure extends LoginState {
+final class LoginFailure extends LoginState {
   final String message;
 
   LoginFailure(this.message);
