@@ -372,13 +372,13 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                 final userId = loginState.user.id;
 
                                 await context.read<PetRegistrationCubit>().completePetRegistration(userId);
-                                if (!context.mounted) return;
+                                if (!context.mounted) return; // 비동기 작업중에 위젯이 dispose되었는지 확인
 
-                                final state = context.read<PetRegistrationCubit>().state;
+                                final state = context.read<PetRegistrationCubit>().state; // 펫 등록 cubit 최신 상태 확인
                                 if (state is PetRegistrationSuccess) {
-                                  await context.read<MainScreenCubit>().refreshPets(loginState.user.id);
+                                  await context.read<MainScreenCubit>().refreshPets(loginState.user.id); // 메인 화면 펫 리스트 새로고침
                                   if (!context.mounted) return;
-                                  context.go('/main');
+                                  context.go('/main'); // 펫 등록 후 메인 화면으로 이동
                                 } else if (state is PetRegistrationFailure) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text(state.message)),

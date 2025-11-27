@@ -102,7 +102,7 @@ final GoRouter _router = GoRouter(
       },
     ),
 
-    // 유저 등록 (user registration cubit 주입)
+    // 유저 등록 (user registration cubit 주입)  -- pageBuilder 방식 사용해보기
     ShellRoute(
       builder: (context, state, child) => BlocProvider(
         create: (context) =>
@@ -112,19 +112,14 @@ final GoRouter _router = GoRouter(
       routes: [
         GoRoute(
           path: '/user_registration',
-          redirect: (context, state) {
-            final path = state.uri.path;
-            if (path.startsWith('/user_registration/') &&
-                path != '/user_registration') {
-              return null;
-            }
-            return '/user_registration/terms_agreement';
+          pageBuilder: (context, state) {
+            return MaterialPage(key: state.pageKey, child: UserTermsAgreementScreen());
           },
           routes: [
-            GoRoute(
-              path: 'terms_agreement',
-              builder: (context, state) => const UserTermsAgreementScreen(),
-            ),
+            // GoRoute(
+            //   path: 'terms_agreement',
+            //   builder: (context, state) => const UserTermsAgreementScreen(),
+            // ),
             GoRoute(
               path: 'nickname',
               builder: (context, state) => const UserNicknameScreen(),

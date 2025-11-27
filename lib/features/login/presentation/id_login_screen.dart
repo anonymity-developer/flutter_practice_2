@@ -60,7 +60,7 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
             context.go('/main');
           } else {
             // 미등록 유저 : 유저 등록 플로우
-            context.go('/user_registration/terms_agreement');
+            context.go('/user_registration');
           }
         } else if (state is LoginFailure) {
           if (!context.mounted) return; // 위젯이 dispose되었으면 종료
