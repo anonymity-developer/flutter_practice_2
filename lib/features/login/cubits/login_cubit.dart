@@ -1,12 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repository/login_repository.dart';
 import '../models.dart';
+import '../../user_registration/repository/user_registration_repository.dart';
 
 /// LoginCubit: 로그인 상태 관리
 class LoginCubit extends Cubit<LoginState> {
   final LoginRepository loginRepository;
+  final UserRegistrationRepository userRegistrationRepository;
 
-  LoginCubit(this.loginRepository) : super(LoginInitial());
+  LoginCubit(this.loginRepository, this.userRegistrationRepository) : super(LoginInitial());
 
   /// 로그인 처리 (목데이터 체크)
   Future<void> login(String userId, String password) async {
@@ -14,7 +16,12 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       final user = await loginRepository.login(userId, password);
       if (user != null) {
-        emit(LoginSuccess(user));
+
+        // 유저 등록 여부 확인
+        final registrationData = await userRegistrationRepository.getUserDataByUserId(user.id);
+        final isRegistered = registrationData != null;
+
+        emit(LoginSuccess(user, isRegistered: isRegistered));
       } else {
         emit(LoginFailure('아이디 또는 비밀번호가 올바르지 않습니다.'));
       }
@@ -41,8 +48,9 @@ class LoginLoading extends LoginState {}
 /// 성공 상태 (사용자 정보 포함)
 class LoginSuccess extends LoginState {
   final User user;
+  final bool isRegistered; // 유저 등록 여부
 
-  LoginSuccess(this.user);
+  LoginSuccess(this.user, {this.isRegistered = false});
 }
 
 /// 실패 상태 (에러 메시지 포함)

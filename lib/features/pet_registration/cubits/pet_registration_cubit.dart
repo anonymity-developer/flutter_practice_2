@@ -89,11 +89,18 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
     emit(PetRegistrationInitial());
   }
 
-  /// 반려동물 등록 완료 (상태만 변경, 실제 저장은 화면에서 처리)
-  void completeRegistration() {
+  /// 반려동물 등록 (Repo에 저장)
+  Future<void> completePetRegistration(String userId) async {
     final currentPet = _getCurrentPet();
     if (currentPet != null) {
-      emit(PetRegistrationSuccess(currentPet));
+      emit(PetRegistrationLoading());
+      try {
+        final savedPet = await repository.registerPet(userId, currentPet);
+        emit(PetRegistrationSuccess(savedPet));
+      } catch (e) {
+        emit(PetRegistrationFailure(e.toString()));
+
+      }
     }
   }
 
@@ -103,6 +110,11 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
       return (state as PetRegistrationLoaded).pet;
     }
     return null;
+  }
+
+  /// 품종 목록 조회
+  List<String> getBreeds(PetType type) {
+    return repository.getBreeds(type);
   }
 }
 
@@ -135,4 +147,3 @@ class PetRegistrationFailure extends PetRegistrationState {
 
   PetRegistrationFailure(this.message);
 }
-

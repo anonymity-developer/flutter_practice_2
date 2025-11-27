@@ -18,6 +18,7 @@ import 'features/user_registration/presentation/user_registration_complete_scree
 import 'features/pet_registration/repository/pet_registration_datasource.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
 import 'features/pet_registration/cubits/pet_registration_cubit.dart';
+import 'features/main/presentation/cubits/main_screen_cubit.dart';
 import 'features/pet_registration/presentation/pet_type_screen.dart';
 import 'features/pet_registration/presentation/pet_breed_screen.dart';
 import 'features/pet_registration/presentation/pet_name_and_gender_screen.dart';
@@ -36,24 +37,34 @@ class MyApp extends StatelessWidget {
       providers: [
         RepositoryProvider(
           create: (context) => LoginRepository(LoginDataSource()),
-            ),
+        ),
         RepositoryProvider(
-          create: (context) => UserRegistrationRepository(UserRegistrationDataSource()),
+          create: (context) =>
+              UserRegistrationRepository(UserRegistrationDataSource()),
         ),
         RepositoryProvider(
           create: (context) =>
               PetRegistrationRepository(PetRegistrationDataSource()),
-            ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => LoginCubit(context.read<LoginRepository>()),
-        ),
-      ],
+            create: (context) => LoginCubit(
+              context.read<LoginRepository>(),
+              context.read<UserRegistrationRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => MainScreenCubit(
+              context.read<UserRegistrationRepository>(),
+              context.read<PetRegistrationRepository>(),
+            ),
+          ),
+        ],
         child: MaterialApp.router(
-        title: 'Pethroom Friends',
-        theme: AppTheme.lightTheme,
+          title: 'Pethroom Friends',
+          theme: AppTheme.lightTheme,
           routerConfig: _router,
         ),
       ),
@@ -71,7 +82,7 @@ final GoRouter _router = GoRouter(
       redirect: (context, state) {
         final path = state.uri.path;
         if (path == '/login/social' || path == '/login/id') {
-          return null; 
+          return null;
         }
         return '/login/social';
       },
@@ -94,7 +105,8 @@ final GoRouter _router = GoRouter(
     // 유저 등록 (user registration cubit 주입)
     ShellRoute(
       builder: (context, state, child) => BlocProvider(
-        create: (context) => UserRegistrationCubit(context.read<UserRegistrationRepository>()),
+        create: (context) =>
+            UserRegistrationCubit(context.read<UserRegistrationRepository>()),
         child: child,
       ),
       routes: [
@@ -102,7 +114,8 @@ final GoRouter _router = GoRouter(
           path: '/user_registration',
           redirect: (context, state) {
             final path = state.uri.path;
-            if (path.startsWith('/user_registration/') && path != '/user_registration') {
+            if (path.startsWith('/user_registration/') &&
+                path != '/user_registration') {
               return null;
             }
             return '/user_registration/terms_agreement';
@@ -122,7 +135,8 @@ final GoRouter _router = GoRouter(
             ),
             GoRoute(
               path: 'complete',
-              builder: (context, state) => const UserRegistrationCompleteScreen(),
+              builder: (context, state) =>
+                  const UserRegistrationCompleteScreen(),
             ),
           ],
         ),
@@ -141,7 +155,8 @@ final GoRouter _router = GoRouter(
           path: '/pet_registration',
           redirect: (context, state) {
             final path = state.uri.path;
-            if (path.startsWith('/pet_registration') && path != '/pet_registration') {
+            if (path.startsWith('/pet_registration') &&
+                path != '/pet_registration') {
               return null;
             }
             return '/pet_registration/type';

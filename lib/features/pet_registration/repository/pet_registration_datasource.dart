@@ -74,7 +74,7 @@ class PetRegistrationDataSource {
   }
 
   /// 사용자 ID로 반려동물 목록 조회
-  Future<List<Pet>> getPetsByUserId(String userId) async {
+  Future<List<Pet>> getPetDataByUserId(String userId) async {
     // 인메모리에서 조회
     return _userPets[userId] ?? [];
   }

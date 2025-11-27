@@ -7,9 +7,9 @@ import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import '../cubits/pet_registration_cubit.dart';
-import '../repository/pet_registration_repository.dart';
 import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
 
 class PetAdditionalInfoScreen extends StatefulWidget {
   const PetAdditionalInfoScreen({super.key});
@@ -129,7 +129,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                         setState(() {
                           _selectedBodyType = type;
                           _checkInput();
-    });
+                        });
                         context.pop();
                       },
                       child: Container(
@@ -299,7 +299,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       hintText: '체형을 선택해 주세요',
                       hintStyle: AppTextStyles.bodyMedium(
                         color: AppColors.secondary_color_gray_5,
-                  ),
+                      ),
                       suffixIcon: const Icon(
                         Icons.arrow_drop_down,
                         color: AppColors.secondary_color_gray_7,
@@ -328,7 +328,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
-                    ),
+                      ),
                     ),
                     onTap: () => _showBodyTypeModal(context),
                   ),
@@ -366,21 +366,24 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                               context
                                   .read<PetRegistrationCubit>()
                                   .updateBodyType(_selectedBodyType);
-                              
-                              // 등록 완료 후 main으로 이동
-                              context.read<PetRegistrationCubit>().completeRegistration();
-                              final state = context.read<PetRegistrationCubit>().state;
-                              if (state is PetRegistrationSuccess) {
-                                // 펫 정보 저장
-                                final loginState = context.read<LoginCubit>().state;
-                                if (loginState is LoginSuccess) {
-                                  final userId = loginState.user.id;
-                                  await context.read<PetRegistrationRepository>()
-                                    .registerPet(userId, state.pet);
-                                }
-                                
+
+                              final loginState = context.read<LoginCubit>().state;
+                              if (loginState is LoginSuccess) {
+                                final userId = loginState.user.id;
+
+                                await context.read<PetRegistrationCubit>().completePetRegistration(userId);
                                 if (!context.mounted) return;
-                                context.go('/main');
+
+                                final state = context.read<PetRegistrationCubit>().state;
+                                if (state is PetRegistrationSuccess) {
+                                  await context.read<MainScreenCubit>().refreshPets(loginState.user.id);
+                                  if (!context.mounted) return;
+                                  context.go('/main');
+                                } else if (state is PetRegistrationFailure) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(state.message)),
+                                  );
+                                }
                               }
                             }
                           : null,

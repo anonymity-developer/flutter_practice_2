@@ -5,13 +5,11 @@ class User extends Equatable {
   final String id;
   final String name;
   final String? phone;
-  
 
   const User({
     required this.id,
     required this.name,
     this.phone,
-    
   });
 
   /// JSON에서 User로 변환
@@ -20,7 +18,6 @@ class User extends Equatable {
       id: json['id'] as String,
       name: json['name'] as String,
       phone: json['phone'] as String?,
-      
     );
   }
 
@@ -30,7 +27,6 @@ class User extends Equatable {
       'id': id,
       'name': name,
       'phone': phone,
-      
     };
   }
 

@@ -4,237 +4,228 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
-import 'package:flutter_application_2/features/pet_registration/repository/pet_registration_repository.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
-import 'package:flutter_application_2/features/user_registration/repository/user_registration_repository.dart';
 import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  UserRegistrationData? _userRegistrationData;
-  List<Pet> _pets = [];
-  bool _isUserInfoLoading = true;
-  bool _isPetsLoading = true;
-  String? _userInfoError;
-  String? _petsError;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-    });
-  }
-
-  Future<void> _loadData() async {
-    final loginState = context.read<LoginCubit>().state;
-    if (loginState is! LoginSuccess) {
-      return;
-    }
-    final userId = loginState.user.id;
-
-    setState(() {
-      _isUserInfoLoading = true;
-      _isPetsLoading = true;
-      _userInfoError = null;
-      _petsError = null;
-    });
-
-    final userRegistrationRepo = context.read<UserRegistrationRepository>();
-    final petRegistrationRepo = context.read<PetRegistrationRepository>();
-
-    try {
-      final userData =
-          await userRegistrationRepo.getUserRegistrationByUserId(userId);
-      if (!mounted) return;
-      setState(() {
-        _userRegistrationData = userData;
-        _isUserInfoLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _userInfoError = '등록 정보를 불러오는 중 오류가 발생했습니다.';
-        _isUserInfoLoading = false;
-      });
-    }
-
-    try {
-      final pets = await petRegistrationRepo.getPetsByUserId(userId);
-      if (!mounted) return;
-      setState(() {
-        _pets = pets;
-        _isPetsLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _petsError = '펫 정보를 불러오는 중 오류가 발생했습니다.';
-        _isPetsLoading = false;
-      });
-    }
-  }
-
-  Future<void> _refreshData() async {
-    await _loadData();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/login/social'),
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, loginState) {
+        // 로그인 성공 시 데이터 로드
+        if (loginState is LoginSuccess) {
+          context.read<MainScreenCubit>().loadData(loginState.user.id);
+        } else if (loginState is LoginInitial) {
+          context.read<MainScreenCubit>().reset();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/login/social'),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: BlocBuilder<LoginCubit, LoginState>(
-          builder: (context, state) {
-            if (state is LoginSuccess) {
-              final user = state.user;
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: AppSpacing.paddingHorizontalLG,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSpacing.heightLG,
-                      Text(
-                        '${user.name}님 안녕하세요!',
-                        style: AppTextStyles.h2(color: AppColors.black),
-                      ),
-                      AppSpacing.heightMD,
-                      Text(
-                        '로그인 사용자 정보',
-                        style: AppTextStyles.bodyLarge(
-                          color: AppColors.secondary_color_gray_10,
-                        ),
-                      ),
-                      AppSpacing.heightXS,
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary_color_gray_1,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'ID: ${user.id}',
-                              style: AppTextStyles.bodyMedium(
-                                color: AppColors.black,
-                              ),
-                            ),
-                            AppSpacing.heightSM,
-                            Text(
-                              '이름: ${user.name}',
-                              style: AppTextStyles.bodyMedium(
-                                color: AppColors.black,
-                              ),
-                            ),
-                            if (user.phone != null) ...[
-                              AppSpacing.heightSM,
-                              Text(
-                                '전화번호: ${user.phone}',
-                                style: AppTextStyles.bodyMedium(
-                                  color: AppColors.black,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      AppSpacing.heightLG,
+        body: SafeArea(
+          child: BlocBuilder<LoginCubit, LoginState>(
+            builder: (context, loginState) {
+              if (loginState is! LoginSuccess) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final user = loginState.user;
 
-                      Text(
-                        '앱 등록 정보',
-                        style: AppTextStyles.bodyLarge(
-                          color: AppColors.secondary_color_gray_10,
-                        ),
-                      ),
-                      AppSpacing.heightXS,
+              return BlocBuilder<MainScreenCubit, MainState>(
+                builder: (context, state) {
+                  // 초기 상태일 때 데이터 로드
+                  if (state is MainScreenInitial) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      context.read<MainScreenCubit>().loadData(user.id);
+                    });
+                  }
 
-                      _buildUserRegistrationSection(),
+                  if (state is MainScreenLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                      AppSpacing.heightLG,
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                  if (state is MainScreenFailure) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '반려동물 정보',
+                            state.message,
+                            style: AppTextStyles.bodyMedium(
+                              color: AppColors.black,
+                            ),
+                          ),
+                          AppSpacing.heightMD,
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<MainScreenCubit>().loadData(user.id);
+                            },
+                            child: const Text('다시 시도'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final userRegistrationData = state is MainScreenSuccess
+                      ? state.userData
+                      : const UserRegistrationData();
+                  final pets = state is MainScreenSuccess ? state.pets : [];
+
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: AppSpacing.paddingHorizontalLG,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppSpacing.heightLG,
+                          Text(
+                            '${user.name}님 안녕하세요!',
+                            style: AppTextStyles.h2(color: AppColors.black),
+                          ),
+                          AppSpacing.heightMD,
+                          Text(
+                            '로그인 사용자 정보',
                             style: AppTextStyles.bodyLarge(
                               color: AppColors.secondary_color_gray_10,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () async {
-                              final result = await context.push('/pet_registration/type');
-                              // 펫 등록이 완료되었을 때만 데이터 새로고침
-                              if (result == true) {
-                                _refreshData();
-                              }
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          AppSpacing.heightXS,
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary_color_gray_1,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              '+ 반려동물 등록',
-                              style: AppTextStyles.bodyMedium(
-                                color: AppColors.primary,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ID: ${user.id}',
+                                  style: AppTextStyles.bodyMedium(
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                AppSpacing.heightSM,
+                                Text(
+                                  '이름: ${user.name}',
+                                  style: AppTextStyles.bodyMedium(
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                if (user.phone != null) ...[
+                                  AppSpacing.heightSM,
+                                  Text(
+                                    '전화번호: ${user.phone}',
+                                    style: AppTextStyles.bodyMedium(
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          AppSpacing.heightLG,
+
+                          Text(
+                            '앱 등록 정보',
+                            style: AppTextStyles.bodyLarge(
+                              color: AppColors.secondary_color_gray_10,
+                            ),
+                          ),
+                          AppSpacing.heightXS,
+
+                          _buildUserRegistrationSection(userRegistrationData),
+
+                          AppSpacing.heightLG,
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '반려동물 정보',
+                                style: AppTextStyles.bodyLarge(
+                                  color: AppColors.secondary_color_gray_10,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await context.push('/pet_registration/type');
+
+                                  // 펫 등록 후 새로고침
+                                  if (!context.mounted) return;
+                                  final state = context.read<MainScreenCubit>().state;
+                                  if (state is MainScreenSuccess) {
+                                    context.read<MainScreenCubit>().refreshPets(loginState.user.id);
+                                  } else if (state is MainScreenFailure) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(state.message)),
+                                    );
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  '+ 반려동물 등록',
+                                  style: AppTextStyles.bodyMedium(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          AppSpacing.heightXS,
+
+                          _buildPetListSection(pets.cast<Pet>()),
+
+                          AppSpacing.heightLG,
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: AppColors.primary),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                context.read<LoginCubit>().logout();
+                                context.go('/login/social');
+                              },
+                              child: Text(
+                                '로그아웃',
+                                style: AppTextStyles.button(
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ),
                           ),
+                          AppSpacing.heightLG,
                         ],
                       ),
-                      AppSpacing.heightXS,
-
-                      _buildPetListSection(),
-
-                      AppSpacing.heightLG,
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppColors.primary),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            context.read<LoginCubit>().logout();
-                            context.go('/login/social');
-                          },
-                          child: Text(
-                            '로그아웃',
-                            style: AppTextStyles.button(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      AppSpacing.heightLG,
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
+            },
+          ),
         ),
       ),
     );
@@ -255,17 +246,12 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Widget _buildUserRegistrationSection() {
-    if (_isUserInfoLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_userInfoError != null) {
-      return _buildMessageContainer(_userInfoError!, textColor: AppColors.black);
-    }
-
-    final registrationData = _userRegistrationData;
-    if (registrationData == null) {
+  Widget _buildUserRegistrationSection(UserRegistrationData registrationData) {
+    if (registrationData.nickname == null &&
+        registrationData.birthday == null &&
+        registrationData.gender == null &&
+        !registrationData.serviceTerms &&
+        !registrationData.privacyPolicy) {
       return _buildMessageContainer(
         '등록된 정보가 없습니다.',
         textColor: AppColors.secondary_color_gray_10,
@@ -334,25 +320,15 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildPetListSection() {
-    if (_isPetsLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_petsError != null) {
-      return _buildMessageContainer(_petsError!, textColor: AppColors.black);
-    }
-
-    if (_pets.isEmpty) {
+  Widget _buildPetListSection(List<Pet> pets) {
+    if (pets.isEmpty) {
       return _buildMessageContainer(
         '등록된 반려동물이 없습니다.',
         textColor: AppColors.secondary_color_gray_10,
       );
     }
 
-    return Column(
-      children: _pets.map(_buildPetCard).toList(),
-    );
+    return Column(children: pets.map(_buildPetCard).toList());
   }
 
   Widget _buildPetCard(Pet pet) {
@@ -424,10 +400,7 @@ class _MainScreenState extends State<MainScreen> {
         color: AppColors.secondary_color_gray_1,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        message,
-        style: AppTextStyles.bodyMedium(color: textColor),
-      ),
+      child: Text(message, style: AppTextStyles.bodyMedium(color: textColor)),
     );
   }
 }

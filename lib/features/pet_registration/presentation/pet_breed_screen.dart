@@ -8,7 +8,6 @@ import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:go_router/go_router.dart';
 import '../models.dart';
 import '../cubits/pet_registration_cubit.dart';
-import '../repository/pet_registration_repository.dart';
 
 class PetBreedScreen extends StatelessWidget {
   const PetBreedScreen({super.key});
@@ -271,8 +270,8 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
 
   void _initializeBreeds(BuildContext context) {
     if (_allBreeds == null) {
-      final repository = context.read<PetRegistrationRepository>();
-      _allBreeds = repository.getBreeds(widget.type);
+      final cubit = context.read<PetRegistrationCubit>();
+      _allBreeds = cubit.getBreeds(widget.type);
       _filteredBreeds = List.from(_allBreeds!);
     }
   }

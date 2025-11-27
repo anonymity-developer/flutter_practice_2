@@ -4,7 +4,6 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/login_cubit.dart';
-import 'package:flutter_application_2/features/user_registration/repository/user_registration_repository.dart';
 import 'package:go_router/go_router.dart';
 
 class IdLoginScreen extends StatefulWidget {
@@ -53,15 +52,10 @@ class _IdLoginScreenState extends State<IdLoginScreen> {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) async {
         if (state is LoginSuccess) {
-          final userId = state.user.id;
-          
-          // 실제 데이터 존재 여부로 확인
-          final registrationData = await context.read<UserRegistrationRepository>()
-            .getUserRegistrationByUserId(userId);
           
           if (!context.mounted) return; // 위젯이 dispose되었으면 종료
           
-          if (registrationData != null) {
+          if (state.isRegistered) {
             // 등록된 유저 : 메인 화면
             context.go('/main');
           } else {

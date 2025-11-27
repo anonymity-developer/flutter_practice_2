@@ -19,7 +19,7 @@ class UserRegistrationDataSource {
   };
 
   /// 유저 등록 완료 (인메모리 저장)
-  Future<void> completeUserRegistration(String userId, UserRegistrationData data) async {
+  Future<void> registerUser(String userId, UserRegistrationData data) async {
     // 인메모리에 저장
     _registeredUsers[userId] = data;
     
@@ -31,7 +31,7 @@ class UserRegistrationDataSource {
   }
 
   /// 사용자 ID로 유저 등록 정보 조회
-  Future<UserRegistrationData?> getUserRegistrationByUserId(String userId) async {
+  Future<UserRegistrationData?> getUserDataByUserId(String userId) async {
     // 인메모리에서 조회
     return _registeredUsers[userId];
   }

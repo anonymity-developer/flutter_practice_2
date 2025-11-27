@@ -9,13 +9,13 @@ class UserRegistrationRepository {
   UserRegistrationRepository(this.dataSource);
 
   /// 유저 등록 완료
-  Future<void> completeUserRegistration(String userId, UserRegistrationData data) async {
+  Future<void> registerUser(String userId, UserRegistrationData data) async {
     // API 연동 시 여기서 추가 검증/변환 가능
-    return dataSource.completeUserRegistration(userId, data);
+    return dataSource.registerUser(userId, data);
   }
 
   /// 사용자 ID로 유저 등록 정보 조회
-  Future<UserRegistrationData?> getUserRegistrationByUserId(String userId) async {
-    return dataSource.getUserRegistrationByUserId(userId);
+  Future<UserRegistrationData?> getUserDataByUserId(String userId) async {
+    return dataSource.getUserDataByUserId(userId);
   }
 }

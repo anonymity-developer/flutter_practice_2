@@ -59,6 +59,31 @@ class UserRegistrationCubit extends Cubit<UserRegistrationState> {
     emit(UserRegistrationInitial(const UserRegistrationData()));
   }
 
+  /// 유저 등록 완료 (Repo에 저장)
+Future<void> completeUserRegistration(String userId) async {
+  final currentData = _getCurrentData();
+
+  final hasRequiredData = currentData.nickname != null &&
+      currentData.nickname!.isNotEmpty &&
+      currentData.birthday != null &&
+      currentData.birthday!.isNotEmpty &&
+      currentData.gender != null &&
+      currentData.gender!.isNotEmpty &&
+      currentData.serviceTerms &&
+      currentData.privacyPolicy;
+
+  if (hasRequiredData) {
+    emit(UserRegistrationLoading());
+    try {
+      await userRegistrationRepository.registerUser(userId, currentData);
+      emit(UserRegistrationDataSaved(currentData));
+    } catch (e) {
+      emit(UserRegistrationFailure(e.toString()));
+    }
+  } else {
+    emit(UserRegistrationFailure('필수 정보를 모두 입력해주세요.'));
+  }
+}
   /// 현재 State에서 UserRegistrationData 가져오기
   UserRegistrationData _getCurrentData() {
     if (state is UserRegistrationInitial) {
@@ -97,4 +122,10 @@ class UserRegistrationDataSaved extends UserRegistrationState {
   final UserRegistrationData data;
 
   UserRegistrationDataSaved(this.data);
+}
+
+class UserRegistrationFailure extends UserRegistrationState {
+  final String message;
+
+  UserRegistrationFailure(this.message);
 }
