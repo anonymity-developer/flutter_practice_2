@@ -44,6 +44,8 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     print('  - _currentUserId: $_currentUserId');
     print('  - BehaviorSubject 마지막 값: user=${userRegistrationRepository.userUpdates}, pet=${petRegistrationRepository.petUpdates}');
     
+    // 잔디 테스트
+     
     // switchMap으로 요청 버전 관리: 이전 요청 취소하고 마지막 것만 처리
     // BehaviorSubject의 마지막 값이 있으면, 구독 시작 시 즉시 emit됨
     _userUpdateSubscription = userRegistrationRepository.userUpdates
