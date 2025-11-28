@@ -16,16 +16,14 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, loginState) {
-        switch (loginState) {
-          case LoginSuccess(user: final user):
-            // 로그인 성공 시 데이터 로드
-            context.read<MainScreenCubit>().loadData(user.id);
-          case LoginInitial():
-            // 로그아웃 시 상태 초기화
-            context.read<MainScreenCubit>().reset();
-          case LoginLoading():
-          case LoginFailure():
-            break;
+        if (loginState.user != null) {
+          // 로그인 성공 시 데이터 로드
+          context.read<MainScreenCubit>().loadData(loginState.user!.id);
+        }
+        
+        if (loginState.user == null) {
+          // 로그아웃 시 상태 초기화
+          context.read<MainScreenCubit>().reset();
         }
       },
       child: Scaffold(
@@ -39,31 +37,28 @@ class MainScreen extends StatelessWidget {
         body: SafeArea(
           child: BlocBuilder<LoginCubit, LoginState>(
             builder: (context, loginState) {
-              if (loginState is! LoginSuccess) {
+              if (loginState.user == null || loginState.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final user = loginState.user;
+              final user = loginState.user!;
 
-              return BlocBuilder<MainScreenCubit, MainState>(
+              return BlocBuilder<MainScreenCubit, MainScreenState>(
                 builder: (context, state) {
-                  // 초기 상태일 때 데이터 로드
-                  if (state is MainScreenInitial) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      context.read<MainScreenCubit>().loadData(user.id);
-                    });
-                  }
+                  // BlocListener가 이미 loadData를 호출함 - 초기 로드 조건 불필요
 
-                  if (state is MainScreenLoading) {
+                  // 로딩 중
+                  if (state.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (state is MainScreenFailure) {
+                  // 에러 상태
+                  if (state.error != null) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            state.message,
+                            state.error!,
                             style: AppTextStyles.bodyMedium(
                               color: AppColors.black,
                             ),
@@ -80,18 +75,9 @@ class MainScreen extends StatelessWidget {
                     );
                   }
 
-                  final userRegistrationData = switch (state) {
-                    MainScreenSuccess(userData: final data) => data,
-                    MainScreenInitial() => const UserRegistrationData(),
-                    MainScreenLoading() => const UserRegistrationData(),
-                    MainScreenFailure() => const UserRegistrationData(),
-                  };
-                  final pets = switch (state) {
-                    MainScreenSuccess(pets: final petList) => petList,
-                    MainScreenInitial() => <Pet>[],
-                    MainScreenLoading() => <Pet>[],
-                    MainScreenFailure() => <Pet>[],
-                  };
+                  // 성공 상태 - 단일 State 필드 직접 접근
+                  final userRegistrationData = state.userData;
+                  final pets = state.pets;
 
                   return SingleChildScrollView(
                     child: Padding(

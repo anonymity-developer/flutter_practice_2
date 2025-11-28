@@ -2,17 +2,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repository/login_repository.dart';
 import '../models.dart';
 import '../../user_registration/repository/user_registration_repository.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+part 'login_cubit.freezed.dart';
 
 /// LoginCubit: 로그인 상태 관리
 class LoginCubit extends Cubit<LoginState> {
   final LoginRepository loginRepository;
   final UserRegistrationRepository userRegistrationRepository;
 
-  LoginCubit(this.loginRepository, this.userRegistrationRepository) : super(LoginInitial());
+  LoginCubit(this.loginRepository, this.userRegistrationRepository) : super(const LoginState());
 
   /// 로그인 처리 (목데이터 체크)
   Future<void> login(String userId, String password) async {
-    emit(LoginLoading());
+    emit(state.copyWith(isLoading: true, error: null));
     try {
       final user = await loginRepository.login(userId, password);
       if (user != null) {
@@ -21,45 +23,60 @@ class LoginCubit extends Cubit<LoginState> {
         final registrationData = await userRegistrationRepository.getUserDataByUserId(user.id);
         final isRegistered = registrationData != null;
 
-        emit(LoginSuccess(user, isRegistered: isRegistered));
+        emit(state.copyWith(
+          isLoading: false,
+          user: user, 
+          isRegistered: isRegistered,
+          error: null,
+        ));
       } else {
-        emit(LoginFailure('아이디 또는 비밀번호가 올바르지 않습니다.'));
+        emit(state.copyWith(
+          isLoading: false,
+          error: '아이디 또는 비밀번호가 올바르지 않습니다.',
+        ));
       }
     } catch (e) {
-      emit(LoginFailure(e.toString()));
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
     }
   }
 
   /// 사용자 정보 삭제 (로그아웃)
   Future<void> logout() async {
-    emit(LoginInitial());
+    emit(state.copyWith(user: null, isRegistered: false));
   }
 }
 
-/// LoginState: 로그인 상태
-sealed class LoginState {}
+// /// LoginState: 로그인 상태
+// sealed class LoginState {}
+// /// 초기 상태
+// final class LoginInitial extends LoginState {}
+// /// 로딩 중 상태
+// final class LoginLoading extends LoginState {}
+// /// 성공 상태 (사용자 정보 포함)
+// final class LoginSuccess extends LoginState {
+//   final User user;
+//   final bool isRegistered; // 유저 등록 여부
+//   LoginSuccess(this.user, {this.isRegistered = false});
+// }
+// /// 실패 상태 (에러 메시지 포함)
+// final class LoginFailure extends LoginState {
+//   final String message;
+//   LoginFailure(this.message);
+// }
 
-/// 초기 상태
-final class LoginInitial extends LoginState {}
 
-/// 로딩 중 상태
-final class LoginLoading extends LoginState {}
-
-/// 성공 상태 (사용자 정보 포함)
-final class LoginSuccess extends LoginState {
-  final User user;
-  final bool isRegistered; // 유저 등록 여부
-
-  LoginSuccess(this.user, {this.isRegistered = false});
+@freezed
+class LoginState with _$LoginState {
+  const factory LoginState({
+    @Default(false) bool isLoading,
+    User? user,
+    @Default(false) bool isRegistered,
+    String? error,
+  }) = _LoginState;
 }
-
-/// 실패 상태 (에러 메시지 포함)
-final class LoginFailure extends LoginState {
-  final String message;
-
-  LoginFailure(this.message);
-}
-
 
 // Cubit 클래스 (상태 관리자)
 // 1. 생성자: 초기 상태 설정

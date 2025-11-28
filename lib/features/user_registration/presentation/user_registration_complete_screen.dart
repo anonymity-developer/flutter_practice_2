@@ -115,27 +115,20 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                   // 다음에 할래요 링크
                   TextButton(
                     onPressed: () async {
-
-                    final loginState = context.read<LoginCubit>().state;
-                    switch (loginState) {
-                      case LoginSuccess(user: final user):
-                        final userId = user.id;
+                      final loginState = context.read<LoginCubit>().state;
+                      if (loginState.user != null) {
+                        final userId = loginState.user!.id;
                         await context.read<UserRegistrationCubit>().completeUserRegistration(userId);
                         if (!context.mounted) return;
                         // [*] 메인 수동 새로 고침 
                         // context.read<MainScreenCubit>().refreshUser(userId);
                         // if (!context.mounted) return;
                         context.go('/main');
-                      case LoginFailure(message: final message):
+                      } else if (loginState.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(message)),
+                          SnackBar(content: Text(loginState.error!)),
                         );
-                      case LoginInitial():
-                      case LoginLoading():
-
-                        break;
-                    }
-
+                      }
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
