@@ -3,24 +3,20 @@ import '../models.dart';
 import 'pet_registration_datasource.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 /// 반려동물 등록 관련 데이터 처리
 /// 나중에 API 연동 시 Repository에서 추가 로직을 담당
 class PetRegistrationRepository {
   final PetRegistrationDataSource dataSource;
-  // final _petUpdateController = StreamController<String>.broadcast();
-  final _petUpdateSubject = BehaviorSubject<String>(); // 마지막값 캐싱
+  final _petUpdateSubject = BehaviorSubject<String?>.seeded(null); // 마지막값 캐싱
 
   PetRegistrationRepository(this.dataSource);
 
   /// 펫 정보 업데이트 스트림 (userId를 emit)
-  // Stream<String> get petUpdates => _petUpdateController.stream;
-  Stream<String> get petUpdates => _petUpdateSubject.stream;
+  Stream<String?> get petUpdates => _petUpdateSubject.stream;
   
   /// 반려동물 등록
   Future<Pet> registerPet(String userId, Pet pet) async {
     final result = await dataSource.registerPet(userId, pet);
-    // _petUpdateController.add(userId); // 변경 알림
     _petUpdateSubject.add(userId); // 변경 알림
     return result;
   }

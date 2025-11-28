@@ -5,19 +5,16 @@ import 'package:rxdart/rxdart.dart';
 
 class UserRegistrationRepository {
   final UserRegistrationDataSource dataSource;
-  // final _userUpdateController = StreamController<String>.broadcast();
-  final _userUpdateSubject = BehaviorSubject<String>(); // 마지막값 캐싱
+  final _userUpdateSubject = BehaviorSubject<String?>.seeded(null); // 마지막값 캐싱
   
   UserRegistrationRepository(this.dataSource);
   
   /// 유저 정보 업데이트 스트림 (userId를 emit)
-  // Stream<String> get userUpdates => _userUpdateController.stream;
-  Stream<String> get userUpdates => _userUpdateSubject.stream;
+  Stream<String?> get userUpdates => _userUpdateSubject.stream;
   
   /// 유저 등록 완료
   Future<void> registerUser(String userId, UserRegistrationData data) async {
     await dataSource.registerUser(userId, data);
-    // _userUpdateController.add(userId); // 변경 알림
     _userUpdateSubject.add(userId); // 변경 알림
   }
   

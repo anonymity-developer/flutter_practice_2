@@ -75,8 +75,9 @@ class PetRegistrationDataSource {
 
   /// 사용자 ID로 반려동물 목록 조회
   Future<List<Pet>> getPetDataByUserId(String userId) async {
-    // 인메모리에서 조회
-    return _userPets[userId] ?? [];
+    // 인메모리에서 조회 후 새 리스트 반환 (freezed equality를 위해)
+    final pets = _userPets[userId] ?? [];
+    return List<Pet>.from(pets); // 새 리스트 생성
   }
 
   /// 반려동물 정보 수정 (API 연동 시 사용)

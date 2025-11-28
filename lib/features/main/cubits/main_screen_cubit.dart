@@ -19,7 +19,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
   StreamSubscription<UserRegistrationData?>? _userUpdateSubscription;
   StreamSubscription<List<Pet>>? _petUpdateSubscription;
 
-  // 생성자에서 하는 일: 스트림 구독 + 타이밍 관리
+  // 생성자: 초기 상태만 설정, 구독은 loadData에서 시작
   MainScreenCubit(
     this.userRegistrationRepository,
     this.petRegistrationRepository,
@@ -29,14 +29,31 @@ class MainScreenCubit extends Cubit<MainScreenState> {
           pets: [],
           isLoading: false,
         ),
-      ) {
+      );
+  
+  /// 스트림 구독 시작 (loadData에서 호출)
+  /// BehaviorSubject의 마지막 값 캐싱 활용:
+  /// - _currentUserId 설정 후 구독 시작하면, BehaviorSubject가 마지막으로 emit한 값이 즉시 전달됨
+  /// - 이전에 데이터 변경이 있었다면, 구독 시작과 동시에 자동으로 최신 데이터를 가져옴
+  void _startSubscriptions() {
+    // 기존 구독 취소 (유저 변경 시 재구독을 위해)
+    _userUpdateSubscription?.cancel();
+    _petUpdateSubscription?.cancel();
+    
+    print('[MainScreenCubit] 스트림 구독 시작');
+    print('  - _currentUserId: $_currentUserId');
+    print('  - BehaviorSubject 마지막 값: user=${userRegistrationRepository.userUpdates}, pet=${petRegistrationRepository.petUpdates}');
+    
     // switchMap으로 요청 버전 관리: 이전 요청 취소하고 마지막 것만 처리
-    // listen에서만 emit하므로, switchMap이 이전 Stream을 취소하면 emit도 안 됨
+    // BehaviorSubject의 마지막 값이 있으면, 구독 시작 시 즉시 emit됨
     _userUpdateSubscription = userRegistrationRepository.userUpdates
-        .where((userId) => _currentUserId == userId) // 현재 유저만 필터링
+        .where((userId) {
+          final passed = userId != null && _currentUserId == userId;
+          return passed;
+        })
         .switchMap(
           (userId) => Stream.fromFuture(
-            userRegistrationRepository.getUserDataByUserId(userId),
+            userRegistrationRepository.getUserDataByUserId(userId!),
           ),
         ) // 새 이벤트 들어오면 이전 future 스트림 구독 끊음. 마지막 요청 응답만 listen까지 도달
         .listen(
@@ -54,10 +71,13 @@ class MainScreenCubit extends Cubit<MainScreenState> {
         );
 
     _petUpdateSubscription = petRegistrationRepository.petUpdates
-        .where((userId) => _currentUserId == userId) // 현재 유저만 필터링
+        .where((userId) {
+          final passed = userId != null && _currentUserId == userId;
+          return passed;
+        })
         .switchMap(
           (userId) => Stream.fromFuture(
-            petRegistrationRepository.getPetDataByUserId(userId),
+            petRegistrationRepository.getPetDataByUserId(userId!),
           ),
         )
         .listen(
@@ -78,14 +98,20 @@ class MainScreenCubit extends Cubit<MainScreenState> {
   }
 
   /// 유저 등록 정보 및 펫 리스트 로드
+  /// BehaviorSubject 사용 흐름:
+  /// 1. _currentUserId 설정
+  /// 2. 스트림 구독 시작 (이때 BehaviorSubject의 마지막 값이 있으면 즉시 emit됨)
+  /// 3. 초기 데이터 로드 (구독이 이미 시작되어 있으므로, 이후 변경사항은 자동으로 처리됨)
   Future<void> loadData(String userId) async {
-    if (_currentUserId != userId) {
-      _currentUserId = userId;
-    }
+    final wasDifferentUser = _currentUserId != userId;
+    _currentUserId = userId;
 
     emit(state.copyWith(isLoading: true, error: null));
+    _startSubscriptions();
+    
     try {
-      final userData = await userRegistrationRepository.getUserDataByUserId(userId, );
+      // 초기 데이터 로드
+      final userData = await userRegistrationRepository.getUserDataByUserId(userId);
       final pets = await petRegistrationRepository.getPetDataByUserId(userId);
 
       emit(
@@ -96,6 +122,11 @@ class MainScreenCubit extends Cubit<MainScreenState> {
           error: null,
         ),
       );
+      
+      // 이후 데이터 변경은 스트림을 통해 자동으로 처리됨
+      // (BehaviorSubject가 새로운 이벤트를 emit하면, switchMap이 자동으로 최신 데이터를 가져옴)
+      if (wasDifferentUser) {
+      }
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -103,6 +134,14 @@ class MainScreenCubit extends Cubit<MainScreenState> {
 
   /// 상태 초기화 (로그아웃)
   void reset() {
+    // 구독 취소
+    _userUpdateSubscription?.cancel();
+    _petUpdateSubscription?.cancel();
+    _userUpdateSubscription = null;
+    _petUpdateSubscription = null;
+    
+
+  
     _currentUserId = null;
     emit(
       const MainScreenState(
