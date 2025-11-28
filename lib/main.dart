@@ -18,7 +18,7 @@ import 'features/user_registration/presentation/user_registration_complete_scree
 import 'features/pet_registration/repository/pet_registration_datasource.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
 import 'features/pet_registration/cubits/pet_registration_cubit.dart';
-import 'features/main/presentation/cubits/main_screen_cubit.dart';
+import 'features/main/cubits/main_screen_cubit.dart';
 import 'features/pet_registration/presentation/pet_type_screen.dart';
 import 'features/pet_registration/presentation/pet_breed_screen.dart';
 import 'features/pet_registration/presentation/pet_name_and_gender_screen.dart';

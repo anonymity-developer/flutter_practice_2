@@ -5,7 +5,7 @@ import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'dart:async';
 
-/// MainScreenCubit: 메인 상태 관리
+/// MainScreenCubit: 메인 화면 상태 관리
 class MainScreenCubit extends Cubit<MainState> {
   final UserRegistrationRepository userRegistrationRepository;
   final PetRegistrationRepository petRegistrationRepository;

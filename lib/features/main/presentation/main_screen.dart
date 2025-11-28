@@ -7,7 +7,7 @@ import 'package:flutter_application_2/features/login/cubits/login_cubit.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_application_2/features/main/presentation/cubits/main_screen_cubit.dart';
+import 'package:flutter_application_2/features/main/cubits/main_screen_cubit.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
