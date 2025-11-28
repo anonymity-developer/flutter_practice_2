@@ -4,6 +4,7 @@ import 'package:flutter_application_2/features/pet_registration/repository/pet_r
 import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 import 'dart:async';
 
 part 'main_screen_cubit.freezed.dart';
@@ -15,9 +16,10 @@ class MainScreenCubit extends Cubit<MainScreenState> {
   String? _currentUserId;
 
   /// Stream 구독 관리
-  StreamSubscription<String>? _userUpdateSubscription;
-  StreamSubscription<String>? _petUpdateSubscription;
+  StreamSubscription<UserRegistrationData?>? _userUpdateSubscription;
+  StreamSubscription<List<Pet>>? _petUpdateSubscription;
 
+  // 생성자에서 하는 일: 스트림 구독 + 타이밍 관리
   MainScreenCubit(
     this.userRegistrationRepository,
     this.petRegistrationRepository,
@@ -28,20 +30,44 @@ class MainScreenCubit extends Cubit<MainScreenState> {
           isLoading: false,
         ),
       ) {
-    _userUpdateSubscription = userRegistrationRepository.userUpdates.listen((
-      userId,
-    ) {
-      if (_currentUserId == userId) {
-        refreshUser(userId);
-      }
-    });
-    _petUpdateSubscription = petRegistrationRepository.petUpdates.listen((
-      userId,
-    ) {
-      if (_currentUserId == userId) {
-        refreshPets(userId);
-      }
-    });
+    // switchMap으로 요청 버전 관리: 이전 요청 취소하고 마지막 것만 처리
+    // listen에서만 emit하므로, switchMap이 이전 Stream을 취소하면 emit도 안 됨
+    _userUpdateSubscription = userRegistrationRepository.userUpdates
+        .where((userId) => _currentUserId == userId) // 현재 유저만 필터링
+        .switchMap(
+          (userId) => Stream.fromFuture(
+            userRegistrationRepository.getUserDataByUserId(userId),
+          ),
+        ) // 새 이벤트 들어오면 이전 future 스트림 구독 끊음. 마지막 요청 응답만 listen까지 도달
+        .listen(
+          (userData) {
+            emit(
+              state.copyWith(
+                userData: userData ?? const UserRegistrationData(),
+                error: null,
+              ),
+            );
+          },
+          onError: (e) {
+            emit(state.copyWith(error: e.toString()));
+          },
+        );
+
+    _petUpdateSubscription = petRegistrationRepository.petUpdates
+        .where((userId) => _currentUserId == userId) // 현재 유저만 필터링
+        .switchMap(
+          (userId) => Stream.fromFuture(
+            petRegistrationRepository.getPetDataByUserId(userId),
+          ),
+        )
+        .listen(
+          (pets) {
+            emit(state.copyWith(pets: pets, error: null));
+          },
+          onError: (e) {
+            emit(state.copyWith(error: e.toString()));
+          },
+        );
   }
 
   @override
@@ -58,10 +84,8 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     }
 
     emit(state.copyWith(isLoading: true, error: null));
-
-
     try {
-      final userData = await userRegistrationRepository.getUserDataByUserId(userId);
+      final userData = await userRegistrationRepository.getUserDataByUserId(userId, );
       final pets = await petRegistrationRepository.getPetDataByUserId(userId);
 
       emit(
@@ -89,34 +113,34 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     );
   }
 
-  /// 유저 등록 정보 새로고침
-  Future<void> refreshUser(String userId) async {
-    try {
-      final userData = await userRegistrationRepository.getUserDataByUserId(
-        userId,
-      );
-      emit(
-        state.copyWith(
-          userData: userData ?? const UserRegistrationData(),
-          error: null,
-        ),
-      );
-    } catch (e) {
-      // refresh 실패해도 기존 상태 유지 (에러만 설정)
-      emit(state.copyWith(error: e.toString()));
-    }
-  }
+  // [*] 메인 수동 새로 고침 - 스트림 기반 자동 새로고침 사용 중임으로 현재 불필요
 
-  /// 펫 리스트 새로고침
-  Future<void> refreshPets(String userId) async {
-    try {
-      final pets = await petRegistrationRepository.getPetDataByUserId(userId);
+  // /// 유저 등록 정보 새로고침
+  // Future<void> refreshUser(String userId) async {
+  //   try {
+  //     final userData = await userRegistrationRepository.getUserDataByUserId(
+  //       userId,
+  //     );
+  //     emit(
+  //       state.copyWith(
+  //         userData: userData ?? const UserRegistrationData(),
+  //         error: null,
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     emit(state.copyWith(error: e.toString()));
+  //   }
+  // }
 
-      emit(state.copyWith(pets: pets, error: null));
-    } catch (e) {
-      emit(state.copyWith(error: e.toString()));
-    }
-  }
+  // /// 펫 리스트 새로고침
+  // Future<void> refreshPets(String userId) async {
+  //   try {
+  //     final pets = await petRegistrationRepository.getPetDataByUserId(userId);
+  //     emit(state.copyWith(pets: pets, error: null));
+  //   } catch (e) {
+  //     emit(state.copyWith(error: e.toString()));
+  //   }
+  // }
 }
 
 // [*] Sealed class 비활성화

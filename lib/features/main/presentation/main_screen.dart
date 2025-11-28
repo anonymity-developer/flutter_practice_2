@@ -15,12 +15,17 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
+      listenWhen: (previous, current) {
+        // 상태 변경 시 listener 호출할 지 결정 -> 지금은 user.id가 변경될 때만 true
+        return previous.user?.id != current.user?.id;
+      },
       listener: (context, loginState) {
+        // 상태 변경 시에만 호출
         if (loginState.user != null) {
           // 로그인 성공 시 데이터 로드
           context.read<MainScreenCubit>().loadData(loginState.user!.id);
         }
-        
+
         if (loginState.user == null) {
           // 로그아웃 시 상태 초기화
           context.read<MainScreenCubit>().reset();
@@ -44,7 +49,14 @@ class MainScreen extends StatelessWidget {
 
               return BlocBuilder<MainScreenCubit, MainScreenState>(
                 builder: (context, state) {
-                  // BlocListener가 이미 loadData를 호출함 - 초기 로드 조건 불필요
+                  // 초기 로드 체크 추가
+                  if (!state.isLoading && 
+                      state.userData.nickname == null && 
+                      state.pets.isEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      context.read<MainScreenCubit>().loadData(user.id);
+                    });
+                  }
 
                   // 로딩 중
                   if (state.isLoading) {
@@ -75,7 +87,7 @@ class MainScreen extends StatelessWidget {
                     );
                   }
 
-                  // 성공 상태 - 단일 State 필드 직접 접근
+                  // 성공 상태
                   final userRegistrationData = state.userData;
                   final pets = state.pets;
 
@@ -144,38 +156,34 @@ class MainScreen extends StatelessWidget {
                                   color: AppColors.secondary_color_gray_10,
                                 ),
                               ),
-                              // 유저 정보가 있을 때만 수정 버튼 표시
-                              if (userRegistrationData.nickname != null ||
-                                  userRegistrationData.birthday != null ||
-                                  userRegistrationData.gender != null)
-                                TextButton(
-                                  onPressed: () {
-                                    context.push('/user_registration');
-                                    
-                                    // [*] 메인 수동 새로 고침 
-                                    // if (!context.mounted) return;
-                                    // final loginState = context.read<LoginCubit>().state;
-                                    // if (loginState is LoginSuccess) {
-                                    //   context.read<MainScreenCubit>()
-                                    //       .refreshUser(loginState.user.id);
-                                    // }
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
+
+                              TextButton(
+                                onPressed: () {
+                                  context.push('/user_registration');
+                                  // [*] 메인 수동 새로 고침
+                                  // if (!context.mounted) return;
+                                  // final loginState = context.read<LoginCubit>().state;
+                                  // if (loginState is LoginSuccess) {
+                                  //   context.read<MainScreenCubit>()
+                                  //       .refreshUser(loginState.user.id);
+                                  // }
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
                                   ),
-                                  child: Text(
-                                    '+ 등록 수정',
-                                    style: AppTextStyles.bodyMedium(
-                                      color: AppColors.primary,
-                                    ),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  '+ 등록 수정',
+                                  style: AppTextStyles.bodyMedium(
+                                    color: AppColors.primary,
                                   ),
                                 ),
+                              ),
                             ],
                           ),
                           AppSpacing.heightXS,
@@ -198,7 +206,7 @@ class MainScreen extends StatelessWidget {
                                 onPressed: () async {
                                   await context.push('/pet_registration/type');
 
-                                  // [*] 메인 수동 새로 고침 
+                                  // [*] 메인 수동 새로 고침
                                   // if (!context.mounted) return;
                                   // final state = context.read<MainScreenCubit>().state;
                                   // switch (state) {

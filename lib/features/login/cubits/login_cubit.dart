@@ -49,6 +49,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 }
 
+// [*] Sealed class 비활성화
 // /// LoginState: 로그인 상태
 // sealed class LoginState {}
 // /// 초기 상태
