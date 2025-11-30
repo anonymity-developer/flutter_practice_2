@@ -16,17 +16,13 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listenWhen: (previous, current) {
-        // 상태 변경 시 listener 호출할 지 결정 -> 지금은 user.id가 변경될 때만 true
         return previous.user?.id != current.user?.id;
       },
       listener: (context, loginState) {
-        // 상태 변경 시에만 호출
         if (loginState.user != null) {
           // 로그인 성공 시 데이터 로드
           context.read<MainScreenCubit>().loadData(loginState.user!.id);
-        }
-
-        if (loginState.user == null) {
+        } else if (loginState.user == null) {
           // 로그아웃 시 상태 초기화
           context.read<MainScreenCubit>().reset();
         }
@@ -49,8 +45,14 @@ class MainScreen extends StatelessWidget {
 
               return BlocBuilder<MainScreenCubit, MainScreenState>(
                 builder: (context, state) {
-                  // BlocListener에서 이미 loadData를 호출
-                  // (BlocListener의 listenWhen으로 user.id 변경 시에만 호출됨)
+                  // 초기 빌드 시 로드
+                  if (!state.isLoading && 
+                      state.userData.nickname == null && 
+                      state.pets.isEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      context.read<MainScreenCubit>().loadData(user.id);
+                    });
+                  }
 
                   // 로딩 중
                   if (state.isLoading) {

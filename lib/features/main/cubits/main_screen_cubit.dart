@@ -32,9 +32,10 @@ class MainScreenCubit extends Cubit<MainScreenState> {
       );
   
   /// 스트림 구독 시작/재시작
-  /// BehaviorSubject의 마지막 값 캐싱 활용:
-  /// - 구독 시작 전에 마지막 값을 확인하여, 현재 userId와 같으면 즉시 데이터 로드
-  /// - 구독 시작 시 BehaviorSubject가 마지막 값을 즉시 emit하므로, where 필터를 통과하면 자동 처리됨
+  /// BehaviorSubject의 마지막 값 캐싱:
+  /// - 구독 시작 시 BehaviorSubject가 마지막 값을 즉시 emit
+  /// - where 필터로 현재 유저의 이벤트만 처리
+  /// - switchMap으로 요청 버전 관리 (이전 요청 취소, 마지막 것만 처리)
   void _startSubscriptions() {
     // 기존 구독 취소 (유저 변경 시 재구독을 위해)
     _userUpdateSubscription?.cancel();
@@ -46,7 +47,6 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     }
     
     // switchMap으로 요청 버전 관리: 이전 요청 취소하고 마지막 것만 처리
-    // BehaviorSubject의 마지막 값이 있으면, 구독 시작 시 즉시 emit됨
     _userUpdateSubscription = userRegistrationRepository.userUpdates
         .where((userId) => userId != null && _currentUserId == userId)
         .switchMap(
@@ -94,10 +94,6 @@ class MainScreenCubit extends Cubit<MainScreenState> {
             ));
           },
         );
-    
-    // 마지막 값이 현재 userId와 같으면, 구독 시작 시 BehaviorSubject가 즉시 emit하므로
-    // where 필터를 통과하여 자동으로 데이터 로드가 시작됨
-    // 다르거나 null이면, loadData에서 triggerUpdate를 호출하여 명시적으로 emit
   }
 
   @override
@@ -107,33 +103,30 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     return super.close();
   }
 
-  /// 유저 등록 정보 및 펫 리스트 로드 - 초기 로드도 스트림으로 처리하도록 변경
-  /// BehaviorSubject 사용 흐름:
-  /// 1. _currentUserId 설정
-  /// 2. 스트림 구독 시작 (이때 BehaviorSubject 마지막 값 확인)
-  /// 3. 마지막 값이 현재 userId와 다르면, triggerUpdate로 명시적으로 emit
-  /// 4. 이후 모든 업데이트는 자동으로 스트림을 통해 처리
+  /// 유저 등록 정보 및 펫 리스트 로드 - 초기 로드도 스트림으로 처리
+  /// BehaviorSubject를 통한 스트림 기반 데이터 로드
+  
   Future<void> loadData(String userId) async {
+    if (_currentUserId == userId && state.isLoading) {
+      return; 
+    }
+    
+    // 유저 변경 시에만 구독 재시작
+    final isUserChanged = _currentUserId != userId;
     _currentUserId = userId;
+    
     emit(state.copyWith(isLoading: true, error: null));
     
-    // 스트림 구독 시작
-    _startSubscriptions();
-    
-    // BehaviorSubject 마지막 값 확인
-    final lastUserUpdate = userRegistrationRepository.lastUpdatedUserId;
-    final lastPetUpdate = petRegistrationRepository.lastUpdatedUserId;
-    
-    // 마지막 값이 현재 userId와 다르거나 null이면, 명시적으로 emit하여 데이터 로드
-    // 같으면 구독 시작 시 이미 BehaviorSubject가 emit했으므로 중복 호출 불필요
-    if (lastUserUpdate != userId) {
-      userRegistrationRepository.triggerUpdate(userId);
-    }
-    if (lastPetUpdate != userId) {
-      petRegistrationRepository.triggerUpdate(userId);
+    // 유저가 변경되었거나 구독이 없으면 구독 시작
+    if (isUserChanged || _userUpdateSubscription == null) {
+      _startSubscriptions();
     }
     
-    // 주의: 여기서는 await하지 않음
+    // 스트림을 통해 데이터 로드 트리거 (BehaviorSubject 활용)
+    userRegistrationRepository.triggerUpdate(userId);
+    petRegistrationRepository.triggerUpdate(userId);
+    
+    // 여기서는 await하지 않음
     // 스트림을 통해 비동기로 처리되므로, listen 콜백에서 emit이 발생함
     // 로딩 상태는 listen 콜백에서 false로 변경됨
   }
