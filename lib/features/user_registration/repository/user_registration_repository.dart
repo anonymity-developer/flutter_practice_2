@@ -12,6 +12,9 @@ class UserRegistrationRepository {
   /// 유저 정보 업데이트 스트림 (userId를 emit)
   Stream<String?> get userUpdates => _userUpdateSubject.stream;
   
+  /// BehaviorSubject의 현재 값 (마지막으로 emit된 userId) - 구독 시작 전에 마지막 값을 확인
+  String? get lastUpdatedUserId => _userUpdateSubject.value;
+  
   /// 유저 등록 완료
   Future<void> registerUser(String userId, UserRegistrationData data) async {
     await dataSource.registerUser(userId, data);
@@ -21,6 +24,11 @@ class UserRegistrationRepository {
   /// 사용자 ID로 유저 등록 정보 조회
   Future<UserRegistrationData?> getUserDataByUserId(String userId) async {
     return dataSource.getUserDataByUserId(userId);
+  }
+  
+  /// 스트림 업데이트 트리거 - BehaviorSubject에 userId를 emit하여 스트림을 통해 데이터 로드
+  void triggerUpdate(String userId) {
+    _userUpdateSubject.add(userId);
   }
   
   /// 리소스 정리

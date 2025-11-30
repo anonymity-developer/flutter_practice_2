@@ -49,14 +49,8 @@ class MainScreen extends StatelessWidget {
 
               return BlocBuilder<MainScreenCubit, MainScreenState>(
                 builder: (context, state) {
-                  // 초기 로드 체크 추가
-                  if (!state.isLoading && 
-                      state.userData.nickname == null && 
-                      state.pets.isEmpty) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      context.read<MainScreenCubit>().loadData(user.id);
-                    });
-                  }
+                  // BlocListener에서 이미 loadData를 호출
+                  // (BlocListener의 listenWhen으로 user.id 변경 시에만 호출됨)
 
                   // 로딩 중
                   if (state.isLoading) {
