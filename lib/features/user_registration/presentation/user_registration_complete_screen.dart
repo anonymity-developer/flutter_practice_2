@@ -38,14 +38,15 @@ class _UserRegistrationCompleteScreenState
             builder: (context, state) {
               // State에서 닉네임 가져오기
               final nickname = switch (state) {
-                UserRegistrationDataLoaded(data: final data) =>
-                  data.nickname ?? widget.nickname,
-                UserRegistrationDataSaved(data: final data) =>
-                  data.nickname ?? widget.nickname,
                 UserRegistrationInitial(data: final data) =>
                   data.nickname ?? widget.nickname,
+                UserRegistrationSuccess(data: final data) =>
+                  data.nickname ?? widget.nickname,
+                UserRegistrationDataLoaded(data: final data) =>
+                  data.nickname ?? widget.nickname,
                 UserRegistrationLoading() => widget.nickname,
-                UserRegistrationFailure() => widget.nickname,
+                UserRegistrationFailure(message: _) => widget.nickname,
+                _ => widget.nickname, // 와일드카드 패턴
               };
 
               return Column(

@@ -6,53 +6,45 @@ part of 'pet_registration_api.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
 
 class _PetRegistrationApi implements PetRegistrationApi {
   _PetRegistrationApi(
     this._dio, {
     this.baseUrl,
-    this.errorLogger,
   });
 
   final Dio _dio;
 
   String? baseUrl;
 
-  final ParseErrorLogger? errorLogger;
-
   @override
   Future<List<Pet>> getPetsByUserId(String userId) async {
-    final _extra = <String, dynamic>{};
+    const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Pet>>(Options(
+    final Map<String, dynamic>? _data = null;
+    final _result =
+        await _dio.fetch<List<dynamic>>(_setStreamType<List<Pet>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
     )
-        .compose(
-          _dio.options,
-          '/users/${userId}/pets',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Pet> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Pet.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
+            .compose(
+              _dio.options,
+              '/users/${userId}/pets',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
+    var value = _result.data!
+        .map((dynamic i) => Pet.fromJson(i as Map<String, dynamic>))
+        .toList();
+    return value;
   }
 
   @override
@@ -60,35 +52,30 @@ class _PetRegistrationApi implements PetRegistrationApi {
     String userId,
     Pet pet,
   ) async {
-    final _extra = <String, dynamic>{};
+    const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(pet.toJson());
-    final _options = _setStreamType<Pet>(Options(
+    final _result =
+        await _dio.fetch<Map<String, dynamic>>(_setStreamType<Pet>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
     )
-        .compose(
-          _dio.options,
-          '/users/${userId}/pets',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Pet _value;
-    try {
-      _value = Pet.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
+            .compose(
+              _dio.options,
+              '/users/${userId}/pets',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
+    final value = Pet.fromJson(_result.data!);
+    return value;
   }
 
   @override
@@ -96,44 +83,39 @@ class _PetRegistrationApi implements PetRegistrationApi {
     String petId,
     Pet pet,
   ) async {
-    final _extra = <String, dynamic>{};
+    const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(pet.toJson());
-    final _options = _setStreamType<Pet>(Options(
+    final _result =
+        await _dio.fetch<Map<String, dynamic>>(_setStreamType<Pet>(Options(
       method: 'PUT',
       headers: _headers,
       extra: _extra,
     )
-        .compose(
-          _dio.options,
-          '/pets/${petId}',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Pet _value;
-    try {
-      _value = Pet.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      rethrow;
-    }
-    return _value;
+            .compose(
+              _dio.options,
+              '/pets/${petId}',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
+    final value = Pet.fromJson(_result.data!);
+    return value;
   }
 
   @override
   Future<void> deletePet(String petId) async {
-    final _extra = <String, dynamic>{};
+    const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(Options(
+    final Map<String, dynamic>? _data = null;
+    await _dio.fetch<void>(_setStreamType<void>(Options(
       method: 'DELETE',
       headers: _headers,
       extra: _extra,
@@ -148,8 +130,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
             baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
-        )));
-    await _dio.fetch<void>(_options);
+        ))));
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

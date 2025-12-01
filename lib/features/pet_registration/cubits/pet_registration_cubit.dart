@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repository/pet_registration_repository.dart';
 import '../models.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'pet_registration_cubit.freezed.dart';
 
 /// PetRegistrationCubit: 반려동물 등록 상태 관리
 class PetRegistrationCubit extends Cubit<PetRegistrationState> {
@@ -90,46 +93,47 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
       PetRegistrationLoaded(pet: final pet) => pet,
       PetRegistrationLoading() => Pet.empty(),
       PetRegistrationSuccess(pet: final pet) => pet,
-      PetRegistrationFailure() => Pet.empty(),
+      PetRegistrationFailure(message: _) => Pet.empty(),
+      _ => Pet.empty(), // 와일드카드 패턴
     };
   }
-
   /// 품종 목록 조회
   List<String> getBreeds(PetType type) {
     return repository.getBreeds(type);
   }
 }
 
-/// PetRegistrationState: 반려동물 등록 상태
-sealed class PetRegistrationState {}
+// [*] Sealed class 비활성화
+// /// PetRegistrationState: 반려동물 등록 상태
+// sealed class PetRegistrationState {}
+// /// 초기 상태 (빈 Pet 객체 포함)
+// final class PetRegistrationInitial extends PetRegistrationState {
+//   final Pet pet;
+//   PetRegistrationInitial(this.pet);
+// }
+// /// 등록 중 (Pet 정보 포함)
+// final class PetRegistrationLoaded extends PetRegistrationState {
+//   final Pet pet;
+//   PetRegistrationLoaded(this.pet);
+// }
+// /// 로딩 중
+// final class PetRegistrationLoading extends PetRegistrationState {}
+// /// 등록 성공
+// final class PetRegistrationSuccess extends PetRegistrationState {
+//   final Pet pet;
+//   PetRegistrationSuccess(this.pet);
+// }
+// /// 등록 실패
+// final class PetRegistrationFailure extends PetRegistrationState {
+//   final String message;
+//   PetRegistrationFailure(this.message);
+// }
 
-/// 초기 상태 (빈 Pet 객체 포함)
-final class PetRegistrationInitial extends PetRegistrationState {
-  final Pet pet;
-
-  PetRegistrationInitial(this.pet);
-}
-
-/// 등록 중 (Pet 정보 포함)
-final class PetRegistrationLoaded extends PetRegistrationState {
-  final Pet pet;
-
-  PetRegistrationLoaded(this.pet);
-}
-
-/// 로딩 중
-final class PetRegistrationLoading extends PetRegistrationState {}
-
-/// 등록 성공
-final class PetRegistrationSuccess extends PetRegistrationState {
-  final Pet pet;
-
-  PetRegistrationSuccess(this.pet);
-}
-
-/// 등록 실패
-final class PetRegistrationFailure extends PetRegistrationState {
-  final String message;
-
-  PetRegistrationFailure(this.message);
+@freezed // union type 방식 (sealed class와 유사)
+class PetRegistrationState with _$PetRegistrationState {
+  const factory PetRegistrationState.initial(Pet pet) = PetRegistrationInitial;
+  const factory PetRegistrationState.loaded(Pet pet) = PetRegistrationLoaded;
+  const factory PetRegistrationState.loading() = PetRegistrationLoading;
+  const factory PetRegistrationState.success(Pet pet) = PetRegistrationSuccess;
+  const factory PetRegistrationState.failure(String message) = PetRegistrationFailure;
 }

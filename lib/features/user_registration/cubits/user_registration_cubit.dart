@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repository/user_registration_repository.dart';
 import 'package:flutter_application_2/features/user_registration/models.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'user_registration_cubit.freezed.dart';
 
 /// UserRegistrationCubit: 유저 등록 정보 관리
 class UserRegistrationCubit extends Cubit<UserRegistrationState> {
@@ -76,7 +79,7 @@ Future<void> completeUserRegistration(String userId) async {
     emit(UserRegistrationLoading());
     try {
       await userRegistrationRepository.registerUser(userId, currentData);
-      emit(UserRegistrationDataSaved(currentData));
+      emit(UserRegistrationSuccess(currentData));
     } catch (e) {
       emit(UserRegistrationFailure(e.toString()));
     }
@@ -89,43 +92,45 @@ Future<void> completeUserRegistration(String userId) async {
     return switch (state) {
       UserRegistrationInitial(data: final data) => data,
       UserRegistrationDataLoaded(data: final data) => data,
-      UserRegistrationDataSaved(data: final data) => data,
       UserRegistrationLoading() => const UserRegistrationData(),
-      UserRegistrationFailure() => const UserRegistrationData(),
+      UserRegistrationSuccess(data: final data) => data,
+      UserRegistrationFailure(message: _) => const UserRegistrationData(),
+      _ => const UserRegistrationData(), // 와일드카드 패턴
     };
   }
 }
 
-/// UserRegistrationState: 유저 등록 상태
-sealed class UserRegistrationState {}
+// [*] Sealed class 비활성화
+// /// UserRegistrationState: 유저 등록 상태
+// sealed class UserRegistrationState {}
+// /// 초기 상태 (빈 UserRegistrationData)
+// final class UserRegistrationInitial extends UserRegistrationState {
+//   final UserRegistrationData data;
+//   UserRegistrationInitial(this.data);
+// }
+// /// 로딩 중
+// final class UserRegistrationLoading extends UserRegistrationState {}
+// /// 유저 등록 정보 로드 완료
+// final class UserRegistrationDataLoaded extends UserRegistrationState {
+//   final UserRegistrationData data;
+//   UserRegistrationDataLoaded(this.data);
+// }
+// /// 유저 등록 정보 저장 완료
+// final class UserRegistrationDataSaved extends UserRegistrationState {
+//   final UserRegistrationData data;
+//   UserRegistrationDataSaved(this.data);
+// }
+// /// 유저 등록 실패
+// final class UserRegistrationFailure extends UserRegistrationState {
+//   final String message;
+//   UserRegistrationFailure(this.message);
+// }
 
-/// 초기 상태 (빈 UserRegistrationData)
-final class UserRegistrationInitial extends UserRegistrationState {
-  final UserRegistrationData data;
-
-  UserRegistrationInitial(this.data);
-}
-
-/// 로딩 중
-final class UserRegistrationLoading extends UserRegistrationState {}
-
-/// 유저 등록 정보 로드 완료
-final class UserRegistrationDataLoaded extends UserRegistrationState {
-  final UserRegistrationData data;
-
-  UserRegistrationDataLoaded(this.data);
-}
-
-/// 유저 등록 정보 저장 완료
-final class UserRegistrationDataSaved extends UserRegistrationState {
-  final UserRegistrationData data;
-
-  UserRegistrationDataSaved(this.data);
-}
-
-/// 유저 등록 실패
-final class UserRegistrationFailure extends UserRegistrationState {
-  final String message;
-
-  UserRegistrationFailure(this.message);
+@freezed // union type 방식 (sealed class와 유사)
+class UserRegistrationState with _$UserRegistrationState {
+  const factory UserRegistrationState.initial(UserRegistrationData data) = UserRegistrationInitial;
+  const factory UserRegistrationState.loaded(UserRegistrationData data) = UserRegistrationDataLoaded;
+  const factory UserRegistrationState.loading() = UserRegistrationLoading;
+  const factory UserRegistrationState.success(UserRegistrationData data) = UserRegistrationSuccess;
+  const factory UserRegistrationState.failure(String message) = UserRegistrationFailure;
 }

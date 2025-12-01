@@ -82,7 +82,7 @@ class LoginCubit extends Cubit<LoginState> {
 //   LoginFailure(this.message);
 // }
 
-@freezed
+@freezed // flag-based 방식
 class LoginState with _$LoginState {
   const factory LoginState({
     @Default(false) bool isLoading,

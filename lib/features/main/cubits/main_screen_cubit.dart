@@ -204,7 +204,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
 //   MainScreenFailure(this.message);
 // }
 
-@freezed // 내부에서 EqualUnmodifiableListView로 감싸줌
+@freezed // flag-based 방식
 class MainScreenState with _$MainScreenState {
   const factory MainScreenState({
     @Default(UserRegistrationData()) UserRegistrationData userData,
