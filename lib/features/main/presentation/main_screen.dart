@@ -19,9 +19,9 @@ class MainScreen extends StatelessWidget {
         return previous.user?.id != current.user?.id;
       },
       listener: (context, loginState) {
-        if (loginState.user != null) {
-          // 로그인 성공 시 데이터 로드
-          context.read<MainScreenCubit>().loadData(loginState.user!.id);
+        if (loginState.user != null && loginState.loginUserId != null) {
+          // 로그인 성공 시 데이터 로드 - 로그인 ID 사용
+          context.read<MainScreenCubit>().loadData(loginState.loginUserId!);
         } else if (loginState.user == null) {
           // 로그아웃 시 상태 초기화
           context.read<MainScreenCubit>().reset();
@@ -48,9 +48,10 @@ class MainScreen extends StatelessWidget {
                   // 초기 빌드 시 로드
                   if (!state.isLoading && 
                       state.userData.nickname == null && 
-                      state.pets.isEmpty) {
+                      state.pets.isEmpty &&
+                      loginState.loginUserId != null) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      context.read<MainScreenCubit>().loadData(user.id);
+                      context.read<MainScreenCubit>().loadData(loginState.loginUserId!);
                     });
                   }
 
@@ -74,7 +75,9 @@ class MainScreen extends StatelessWidget {
                           AppSpacing.heightMD,
                           ElevatedButton(
                             onPressed: () {
-                              context.read<MainScreenCubit>().loadData(user.id);
+                              if (loginState.loginUserId != null) {
+                                context.read<MainScreenCubit>().loadData(loginState.loginUserId!);
+                              }
                             },
                             child: const Text('다시 시도'),
                           ),
@@ -123,7 +126,7 @@ class MainScreen extends StatelessWidget {
                                 ),
                                 AppSpacing.heightSM,
                                 Text(
-                                  '이름: ${user.name}',
+                                  '이름: ${user.userId}',
                                   style: AppTextStyles.bodyMedium(
                                     color: AppColors.black,
                                   ),

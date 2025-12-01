@@ -3,12 +3,12 @@ import 'package:equatable/equatable.dart';
 /// User 모델 (로그인된 사용자 정보)
 class User extends Equatable {
   final String id;
-  final String name;
+  final String userId;
   final String? phone;
 
   const User({
     required this.id,
-    required this.name,
+    required this.userId ,
     this.phone,
   });
 
@@ -16,7 +16,7 @@ class User extends Equatable {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
-      name: json['name'] as String,
+      userId: json['userId'] as String,
       phone: json['phone'] as String?,
     );
   }
@@ -25,12 +25,12 @@ class User extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
+      'userId': userId,
       'phone': phone,
     };
   }
 
   @override
-  List<Object?> get props => [id, name, phone];
+  List<Object?> get props => [id, userId, phone];
 }
 

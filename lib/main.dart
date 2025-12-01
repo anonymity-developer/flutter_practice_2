@@ -39,8 +39,9 @@ class MyApp extends StatelessWidget {
           create: (context) => LoginRepository(LoginDataSource()),
         ),
         RepositoryProvider(
-          create: (context) =>
-              UserRegistrationRepository(UserRegistrationDataSource()),
+          create: (context) => UserRegistrationRepository(
+            UserRegistrationDataSource(),
+          ),
         ),
         RepositoryProvider(
           create: (context) =>

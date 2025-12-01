@@ -6,112 +6,91 @@ import '../models.dart';
 class PetRegistrationCubit extends Cubit<PetRegistrationState> {
   final PetRegistrationRepository repository;
 
-  PetRegistrationCubit(this.repository) : super(PetRegistrationInitial());
+  // 초기 상태에 빈 Pet 객체 포함
+  PetRegistrationCubit(this.repository) 
+    : super(PetRegistrationInitial(Pet.empty()));
 
-  /// 반려동물 등록 시작 (타입 선택)
-  void startPetRegistration(PetType type) {
-    final pet = Pet(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      type: type,
-      breed: '',
-      name: '',
-      gender: PetGender.male,
-      isNeutered: false,
-    );
-    emit(PetRegistrationLoaded(pet));
+  /// 타입 저장
+  void saveType(PetType type) {
+    final currentPet = _getCurrentPet();
+    final updatedPet = currentPet.copyWith(type: type);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 종 업데이트
-  void updateBreed(String breed) {
+  /// 종 저장
+  void saveBreed(String breed) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(breed: breed);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(breed: breed);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 이름 업데이트
-  void updateName(String name) {
+  /// 이름 저장
+  void saveName(String name) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(name: name);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(name: name);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 성별 업데이트
-  void updateGender(PetGender gender) {
+  /// 성별 저장
+  void saveGender(PetGender gender) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(gender: gender);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(gender: gender);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 중성화 여부 업데이트
-  void updateIsNeutered(bool isNeutered) {
+  /// 중성화 여부 저장
+  void saveIsNeutered(bool isNeutered) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(isNeutered: isNeutered);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(isNeutered: isNeutered);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 생일 업데이트
-  void updateBirthday(String? birthday) {
+  /// 생일 저장
+  void saveBirthday(String? birthday) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(birthday: birthday);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(birthday: birthday);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 몸무게 업데이트
-  void updateWeight(double? weight) {
+  /// 몸무게 저장
+  void saveWeight(double? weight) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(weight: weight);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(weight: weight);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
-  /// 체형 업데이트
-  void updateBodyType(PetBodyType? bodyType) {
+  /// 체형 저장
+  void saveBodyType(PetBodyType? bodyType) {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      final updatedPet = currentPet.copyWith(bodyType: bodyType);
-      emit(PetRegistrationLoaded(updatedPet));
-    }
+    final updatedPet = currentPet.copyWith(bodyType: bodyType);
+    emit(PetRegistrationLoaded(updatedPet));
   }
 
   /// 등록 초기화
   void clearRegistration() {
-    emit(PetRegistrationInitial());
+    emit(PetRegistrationInitial(Pet.empty()));
   }
 
   /// 반려동물 등록 (Repo에 저장)
   Future<void> completePetRegistration(String userId) async {
     final currentPet = _getCurrentPet();
-    if (currentPet != null) {
-      emit(PetRegistrationLoading());
-      try {
-        final savedPet = await repository.registerPet(userId, currentPet);
-        emit(PetRegistrationSuccess(savedPet));
-      } catch (e) {
-        emit(PetRegistrationFailure(e.toString()));
-
-      }
+    emit(PetRegistrationLoading());
+    try {
+      final savedPet = await repository.registerPet(userId, currentPet);
+      emit(PetRegistrationSuccess(savedPet));
+    } catch (e) {
+      emit(PetRegistrationFailure(e.toString()));
     }
   }
 
   /// 현재 State에서 Pet 가져오기
-  Pet? _getCurrentPet() {
+  Pet _getCurrentPet() {
     return switch (state) {
+      PetRegistrationInitial(pet: final pet) => pet,
       PetRegistrationLoaded(pet: final pet) => pet,
-      PetRegistrationInitial() => null,
-      PetRegistrationLoading() => null,
-      PetRegistrationSuccess() => null,
-      PetRegistrationFailure() => null,
+      PetRegistrationLoading() => Pet.empty(),
+      PetRegistrationSuccess(pet: final pet) => pet,
+      PetRegistrationFailure() => Pet.empty(),
     };
   }
 
@@ -124,8 +103,12 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
 /// PetRegistrationState: 반려동물 등록 상태
 sealed class PetRegistrationState {}
 
-/// 초기 상태
-final class PetRegistrationInitial extends PetRegistrationState {}
+/// 초기 상태 (빈 Pet 객체 포함)
+final class PetRegistrationInitial extends PetRegistrationState {
+  final Pet pet;
+
+  PetRegistrationInitial(this.pet);
+}
 
 /// 등록 중 (Pet 정보 포함)
 final class PetRegistrationLoaded extends PetRegistrationState {

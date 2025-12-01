@@ -11,4 +11,6 @@ class LoginRepository {
   Future<User?> login(String userId, String password) async {
     return await dataSource.findUserByCredentials(userId, password);
   }
+
+  /// 회원가입 method는 비워둠 - api로만 처리
 }

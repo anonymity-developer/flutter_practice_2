@@ -30,7 +30,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
           isLoading: false,
         ),
       );
-  
+
   /// 스트림 구독 시작/재시작
   /// BehaviorSubject의 마지막 값 캐싱:
   /// - 구독 시작 시 BehaviorSubject가 마지막 값을 즉시 emit
@@ -40,18 +40,18 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     // 기존 구독 취소 (유저 변경 시 재구독을 위해)
     _userUpdateSubscription?.cancel();
     _petUpdateSubscription?.cancel();
-    
+
     if (_currentUserId == null) {
       // 로그아웃 상태면 구독하지 않음 (위젯은 유지)
       return;
     }
-    
+
     // switchMap으로 요청 버전 관리: 이전 요청 취소하고 마지막 것만 처리
     _userUpdateSubscription = userRegistrationRepository.userUpdates
         .where((userId) => userId != null && _currentUserId == userId)
         .switchMap(
           (userId) => Stream.fromFuture(
-            userRegistrationRepository.getUserDataByUserId(userId!),
+            userRegistrationRepository.getUserByUserId(userId!),
           ),
         ) // 새 이벤트 들어오면 이전 future 스트림 구독 끊음. 마지막 요청 응답만 listen까지 도달
         .listen(
@@ -65,10 +65,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
             );
           },
           onError: (e) {
-            emit(state.copyWith(
-              error: e.toString(),
-              isLoading: false,
-            ));
+            emit(state.copyWith(error: e.toString(), isLoading: false));
           },
         );
 
@@ -81,17 +78,10 @@ class MainScreenCubit extends Cubit<MainScreenState> {
         )
         .listen(
           (pets) {
-            emit(state.copyWith(
-              pets: pets,
-              error: null,
-              isLoading: false,
-            ));
+            emit(state.copyWith(pets: pets, error: null, isLoading: false));
           },
           onError: (e) {
-            emit(state.copyWith(
-              error: e.toString(),
-              isLoading: false,
-            ));
+            emit(state.copyWith(error: e.toString(), isLoading: false));
           },
         );
   }
@@ -105,27 +95,27 @@ class MainScreenCubit extends Cubit<MainScreenState> {
 
   /// 유저 등록 정보 및 펫 리스트 로드 - 초기 로드도 스트림으로 처리
   /// BehaviorSubject를 통한 스트림 기반 데이터 로드
-  
+
   Future<void> loadData(String userId) async {
     if (_currentUserId == userId && state.isLoading) {
-      return; 
+      return;
     }
-    
+
     // 유저 변경 시에만 구독 재시작
     final isUserChanged = _currentUserId != userId;
     _currentUserId = userId;
-    
+
     emit(state.copyWith(isLoading: true, error: null));
-    
+
     // 유저가 변경되었거나 구독이 없으면 구독 시작
     if (isUserChanged || _userUpdateSubscription == null) {
       _startSubscriptions();
     }
-    
+
     // 스트림을 통해 데이터 로드 트리거 (BehaviorSubject 활용)
     userRegistrationRepository.triggerUpdate(userId);
     petRegistrationRepository.triggerUpdate(userId);
-    
+
     // 여기서는 await하지 않음
     // 스트림을 통해 비동기로 처리되므로, listen 콜백에서 emit이 발생함
     // 로딩 상태는 listen 콜백에서 false로 변경됨
@@ -139,9 +129,9 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     _petUpdateSubscription?.cancel();
     _userUpdateSubscription = null;
     _petUpdateSubscription = null;
-    
+
     _currentUserId = null;
-    
+
     // 민감한 데이터 초기화
     emit(
       const MainScreenState(
@@ -152,7 +142,8 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     );
   }
 
-  // [*] 메인 수동 새로 고침 - 스트림 기반 자동 새로고침 사용 중임으로 현재 불필요
+
+  // [*] 메인 수동 새로 고침
 
   // /// 유저 등록 정보 새로고침
   // Future<void> refreshUser(String userId) async {

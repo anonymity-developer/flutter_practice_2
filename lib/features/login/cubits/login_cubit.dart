@@ -10,7 +10,8 @@ class LoginCubit extends Cubit<LoginState> {
   final LoginRepository loginRepository;
   final UserRegistrationRepository userRegistrationRepository;
 
-  LoginCubit(this.loginRepository, this.userRegistrationRepository) : super(const LoginState());
+  LoginCubit(this.loginRepository, this.userRegistrationRepository)
+    : super(const LoginState());
 
   /// 로그인 처리 (목데이터 체크)
   Future<void> login(String userId, String password) async {
@@ -18,34 +19,47 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       final user = await loginRepository.login(userId, password);
       if (user != null) {
-
         // 유저 등록 여부 확인
-        final registrationData = await userRegistrationRepository.getUserDataByUserId(user.id);
-        final isRegistered = registrationData != null;
+        try {
+          final registrationData = await userRegistrationRepository
+              .getUserByUserId(userId);
+          final isRegistered = registrationData != null;
 
-        emit(state.copyWith(
-          isLoading: false,
-          user: user, 
-          isRegistered: isRegistered,
-          error: null,
-        ));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              user: user,
+              loginUserId: userId, // 로그인 ID 저장
+              isRegistered: isRegistered,
+              error: null,
+            ),
+          );
+        } catch (e) {
+          // 등록 정보 조회 실패 시에도 로그인은 성공으로 처리
+          emit(
+            state.copyWith(
+              isLoading: false,
+              user: user,
+              loginUserId: userId, // 로그인 ID 저장
+              isRegistered: false,
+              error: null,
+            ),
+          );
+        }
       } else {
-        emit(state.copyWith(
-          isLoading: false,
-          error: '아이디 또는 비밀번호가 올바르지 않습니다.',
-        ));
+        emit(
+          state.copyWith(isLoading: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.'),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      ));
+      print('로그인 전체 실패: $e');
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
   /// 사용자 정보 삭제 (로그아웃)
   Future<void> logout() async {
-    emit(state.copyWith(user: null, isRegistered: false));
+    emit(state.copyWith(user: null, loginUserId: null, isRegistered: false));
   }
 }
 
@@ -68,12 +82,12 @@ class LoginCubit extends Cubit<LoginState> {
 //   LoginFailure(this.message);
 // }
 
-
 @freezed
 class LoginState with _$LoginState {
   const factory LoginState({
     @Default(false) bool isLoading,
     User? user,
+    String? loginUserId, // 로그인에 사용한 ID
     @Default(false) bool isRegistered,
     String? error,
   }) = _LoginState;

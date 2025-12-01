@@ -24,29 +24,27 @@ class PetRegistrationRepository {
     return result;
   }
 
-  /// 반려동물 목록 조회
-  Future<List<Pet>> getPets() async {
-    return dataSource.getPets();
+  /// 사용자 ID로 반려동물 목록 조회
+  Future<List<Pet>> getPetDataByUserId(String userId) async {
+    return dataSource.getPetDataByUserId(userId);
   }
 
   /// 반려동물 정보 수정
-  Future<Pet> updatePet(Pet pet) async {
-    return dataSource.updatePet(pet);
+  Future<Pet> updatePet(String userId, String petId, Pet pet) async {
+    final result = await dataSource.updatePet(petId, pet);
+    _petUpdateSubject.add(userId); // 변경 알림
+    return result;
   }
 
   /// 반려동물 삭제
-  Future<void> deletePet(String petId) async {
-    return dataSource.deletePet(petId);
+  Future<void> deletePet(String userId, String petId) async {
+    await dataSource.deletePet(petId);
+    _petUpdateSubject.add(userId); // 변경 알림
   }
 
   /// 반려동물 품종 목록 조회
   List<String> getBreeds(PetType type) {
     return dataSource.getBreeds(type);
-  }
-
-  /// 사용자 ID로 반려동물 목록 조회
-  Future<List<Pet>> getPetDataByUserId(String userId) async {
-    return dataSource.getPetDataByUserId(userId);
   }
 
   /// 스트림 업데이트 트리거 - BehaviorSubject에 userId를 emit하여 스트림을 통해 데이터 로드
@@ -56,7 +54,6 @@ class PetRegistrationRepository {
 
   /// 리소스 정리
   void dispose() {
-    // _petUpdateController.close();
     _petUpdateSubject.close();
   }
 }

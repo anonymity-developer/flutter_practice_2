@@ -12,21 +12,19 @@ import 'package:go_router/go_router.dart';
 class UserRegistrationCompleteScreen extends StatefulWidget {
   final String nickname;
 
-  const UserRegistrationCompleteScreen({
-    super.key,
-    this.nickname = '회원',
-  });
+  const UserRegistrationCompleteScreen({super.key, this.nickname = '회원'});
 
   @override
-  State<UserRegistrationCompleteScreen> createState() => _UserRegistrationCompleteScreenState();
+  State<UserRegistrationCompleteScreen> createState() =>
+      _UserRegistrationCompleteScreenState();
 }
 
-class _UserRegistrationCompleteScreenState extends State<UserRegistrationCompleteScreen> {
+class _UserRegistrationCompleteScreenState
+    extends State<UserRegistrationCompleteScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
@@ -58,9 +56,7 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
-                    child: Image.asset(
-                      AppAssets.welcomingAnimals,
-                    ),
+                    child: Image.asset(AppAssets.welcomingAnimals),
                   ),
 
                   AppSpacing.heightXL,
@@ -98,14 +94,22 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {
-                        context.push('/pet_registration/type');
+                      onPressed: () async {
+                        final loginState = context.read<LoginCubit>().state;
+                        if (loginState.user != null &&
+                            loginState.loginUserId != null) {
+                          final userId = loginState.loginUserId!;
+                          await context
+                              .read<UserRegistrationCubit>()
+                              .completeUserRegistration(userId);
+                          if (!context.mounted) return;
+                          context.push('/pet_registration/type');
+                        }
                       },
+
                       child: Text(
                         '내 반려동물 알려주기',
-                        style: AppTextStyles.button(
-                          color: AppColors.white,
-                        ),
+                        style: AppTextStyles.button(color: AppColors.white),
                       ),
                     ),
                   ),
@@ -116,11 +120,14 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                   TextButton(
                     onPressed: () async {
                       final loginState = context.read<LoginCubit>().state;
-                      if (loginState.user != null) {
-                        final userId = loginState.user!.id;
-                        await context.read<UserRegistrationCubit>().completeUserRegistration(userId);
+                      if (loginState.user != null &&
+                          loginState.loginUserId != null) {
+                        final userId = loginState.loginUserId!;
+                        await context
+                            .read<UserRegistrationCubit>()
+                            .completeUserRegistration(userId);
                         if (!context.mounted) return;
-                        // [*] 메인 수동 새로 고침 
+                        // [*] 메인 수동 새로 고침
                         // context.read<MainScreenCubit>().refreshUser(userId);
                         // if (!context.mounted) return;
                         context.go('/main');
@@ -139,9 +146,7 @@ class _UserRegistrationCompleteScreenState extends State<UserRegistrationComplet
                       '다음에 할래요',
                       style: AppTextStyles.bodyMedium(
                         color: AppColors.secondary_color_gray_7,
-                      ).copyWith(
-                        decoration: TextDecoration.underline,
-                      ),
+                      ).copyWith(decoration: TextDecoration.underline),
                     ),
                   ),
 

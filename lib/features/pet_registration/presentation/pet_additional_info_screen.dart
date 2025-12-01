@@ -202,8 +202,13 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
     return BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
       builder: (context, state) {
         String petName = '반려동물';
-        if (state is PetRegistrationLoaded) {
-          petName = state.pet.name.isNotEmpty ? state.pet.name : '반려동물';
+        final pet = switch (state) {
+          PetRegistrationInitial(pet: final p) => p,
+          PetRegistrationLoaded(pet: final p) => p,
+          _ => null,
+        };
+        if (pet != null) {
+          petName = pet.name.isNotEmpty ? pet.name : '반려동물';
         }
 
         return Scaffold(
@@ -355,21 +360,21 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                               );
                               context
                                   .read<PetRegistrationCubit>()
-                                  .updateBirthday(
+                                  .saveBirthday(
                                     _birthdayController.text.isEmpty
                                         ? null
                                         : _birthdayController.text,
                                   );
-                              context.read<PetRegistrationCubit>().updateWeight(
+                              context.read<PetRegistrationCubit>().saveWeight(
                                 weight,
                               );
                               context
                                   .read<PetRegistrationCubit>()
-                                  .updateBodyType(_selectedBodyType);
+                                  .saveBodyType(_selectedBodyType);
 
                               final loginState = context.read<LoginCubit>().state;
                               if (loginState.user != null) {
-                                final userId = loginState.user!.id;
+                                final userId = loginState.loginUserId!;
 
                                 await context.read<PetRegistrationCubit>().completePetRegistration(userId);
                                 if (!context.mounted) return;
@@ -388,7 +393,6 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                   case PetRegistrationInitial():
                                   case PetRegistrationLoading():
                                   case PetRegistrationLoaded():
-
                                     break;
                                 }
                               }

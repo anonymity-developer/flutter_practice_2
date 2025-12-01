@@ -32,9 +32,11 @@ class PetBreedScreen extends StatelessWidget {
               
               BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                 builder: (context, state) {
-                  final selectedType = state is PetRegistrationLoaded
-                      ? state.pet.type
-                      : null;
+                  final selectedType = switch (state) {
+                    PetRegistrationInitial(pet: final pet) => pet.type,
+                    PetRegistrationLoaded(pet: final pet) => pet.type,
+                    _ => null,
+                  };
                   final petTypeText = selectedType == PetType.dog ? '강아지' : '고양이';
                   
                   return Text(
@@ -51,11 +53,16 @@ class PetBreedScreen extends StatelessWidget {
               Expanded(
                 child: BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                   builder: (context, state) {
-                    if (state is! PetRegistrationLoaded) {
+                    final currentPet = switch (state) {
+                      PetRegistrationInitial(pet: final pet) => pet,
+                      PetRegistrationLoaded(pet: final pet) => pet,
+                      _ => null,
+                    };
+                    
+                    if (currentPet == null) {
                       return const Center(child: Text('타입을 먼저 선택해주세요'));
                     }
                     
-                    final currentPet = state.pet;
                     final selectedType = currentPet.type;
                     final selectedBreed = currentPet.breed;
                     final isButtonEnabled = selectedBreed.isNotEmpty;
@@ -63,7 +70,7 @@ class PetBreedScreen extends StatelessWidget {
                     return Column(
                       children: [
                         // 선택한 타입 표시 카드 (큰 카드)
-                        _buildPetTypeCard(selectedType),
+                        _buildPetTypeCard(selectedType!),
                         
                         AppSpacing.heightXL,
                         
@@ -73,7 +80,7 @@ class PetBreedScreen extends StatelessWidget {
                           type: selectedType,
                           selectedBreed: selectedBreed.isEmpty ? null : selectedBreed,
                           onBreedSelected: (breed) {
-                            context.read<PetRegistrationCubit>().updateBreed(breed);
+                            context.read<PetRegistrationCubit>().saveBreed(breed);
                           },
                         ),
                         

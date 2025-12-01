@@ -50,9 +50,12 @@ class PetTypeScreen extends StatelessWidget {
               Expanded(
                 child: BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                   builder: (context, state) {
-                    final selectedType = state is PetRegistrationLoaded
-                        ? state.pet.type
-                        : null;
+                    // PetRegistrationInitial과 PetRegistrationLoaded 모두에서 type 가져오기
+                    final selectedType = switch (state) {
+                      PetRegistrationInitial(pet: final pet) => pet.type,
+                      PetRegistrationLoaded(pet: final pet) => pet.type,
+                      _ => null,
+                    };
                     final isButtonEnabled = selectedType != null;
                     
                     return Column(
@@ -65,7 +68,7 @@ class PetTypeScreen extends StatelessWidget {
                           onPressed: () {
                             context
                                 .read<PetRegistrationCubit>()
-                                .startPetRegistration(PetType.dog);
+                                .saveType(PetType.dog);
                           },
                         ),
                         
@@ -79,7 +82,7 @@ class PetTypeScreen extends StatelessWidget {
                           onPressed: () {
                             context
                                 .read<PetRegistrationCubit>()
-                                .startPetRegistration(PetType.cat);
+                                .saveType(PetType.cat);
                           },
                         ),
                         

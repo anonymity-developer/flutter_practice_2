@@ -205,13 +205,13 @@ class _PetNameAndGenderScreenState extends State<PetNameAndGenderScreen> {
                   ),
                   onPressed: _isButtonEnabled
                       ? () {
-                          context.read<PetRegistrationCubit>().updateName(
+                          context.read<PetRegistrationCubit>().saveName(
                                 _petNameController.text,
                               );
-                          context.read<PetRegistrationCubit>().updateGender(
+                          context.read<PetRegistrationCubit>().saveGender(
                                 _selectedGender!,
                               );
-                          context.read<PetRegistrationCubit>().updateIsNeutered(
+                          context.read<PetRegistrationCubit>().saveIsNeutered(
                                 _isNeutered,
                               );
                           context.push('/pet_registration/additional_info');
