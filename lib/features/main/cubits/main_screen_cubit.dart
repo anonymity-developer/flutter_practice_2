@@ -189,20 +189,6 @@ class MainScreenCubit extends Cubit<MainScreenState> {
   // }
 }
 
-// [*] Sealed class 비활성화
-// sealed class MainState {}
-// final class MainScreenInitial extends MainState {}
-// final class MainScreenLoading extends MainState {}
-// final class MainScreenSuccess extends MainState {
-//   final UserRegistrationData userData;
-//   final List<Pet> pets;
-//   MainScreenSuccess(this.userData, this.pets);
-// }
-// final class MainScreenFailure extends MainState {
-//   final String message;
-
-//   MainScreenFailure(this.message);
-// }
 
 @freezed // flag-based 방식
 class MainScreenState with _$MainScreenState {

@@ -118,9 +118,6 @@ class _UserRegistrationCompleteScreenState
                             .read<UserRegistrationCubit>()
                             .completeUserRegistration(userId);
                         if (!context.mounted) return;
-                        // [*] 메인 수동 새로 고침
-                        // context.read<MainScreenCubit>().refreshUser(userId);
-                        // if (!context.mounted) return;
                         context.go('/main');
                       } else if (loginState.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(

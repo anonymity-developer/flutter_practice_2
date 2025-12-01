@@ -92,32 +92,6 @@ Future<void> completeUserRegistration(String userId) async {
   }
 }
 
-// [*] Sealed class 비활성화
-// /// UserRegistrationState: 유저 등록 상태
-// sealed class UserRegistrationState {}
-// /// 초기 상태 (빈 UserRegistrationData)
-// final class UserRegistrationInitial extends UserRegistrationState {
-//   final UserRegistrationData data;
-//   UserRegistrationInitial(this.data);
-// }
-// /// 로딩 중
-// final class UserRegistrationLoading extends UserRegistrationState {}
-// /// 유저 등록 정보 로드 완료
-// final class UserRegistrationDataLoaded extends UserRegistrationState {
-//   final UserRegistrationData data;
-//   UserRegistrationDataLoaded(this.data);
-// }
-// /// 유저 등록 정보 저장 완료
-// final class UserRegistrationDataSaved extends UserRegistrationState {
-//   final UserRegistrationData data;
-//   UserRegistrationDataSaved(this.data);
-// }
-// /// 유저 등록 실패
-// final class UserRegistrationFailure extends UserRegistrationState {
-//   final String message;
-//   UserRegistrationFailure(this.message);
-// }
-
 @freezed // flag-based 방식
 class UserRegistrationState with _$UserRegistrationState {
   const factory UserRegistrationState({

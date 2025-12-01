@@ -96,32 +96,6 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
   }
 }
 
-// [*] Sealed class 비활성화
-// /// PetRegistrationState: 반려동물 등록 상태
-// sealed class PetRegistrationState {}
-// /// 초기 상태 (빈 Pet 객체 포함)
-// final class PetRegistrationInitial extends PetRegistrationState {
-//   final Pet pet;
-//   PetRegistrationInitial(this.pet);
-// }
-// /// 등록 중 (Pet 정보 포함)
-// final class PetRegistrationLoaded extends PetRegistrationState {
-//   final Pet pet;
-//   PetRegistrationLoaded(this.pet);
-// }
-// /// 로딩 중
-// final class PetRegistrationLoading extends PetRegistrationState {}
-// /// 등록 성공
-// final class PetRegistrationSuccess extends PetRegistrationState {
-//   final Pet pet;
-//   PetRegistrationSuccess(this.pet);
-// }
-// /// 등록 실패
-// final class PetRegistrationFailure extends PetRegistrationState {
-//   final String message;
-//   PetRegistrationFailure(this.message);
-// }
-
 @freezed // flag-based 방식
 class PetRegistrationState with _$PetRegistrationState {
   const factory PetRegistrationState({

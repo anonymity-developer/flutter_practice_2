@@ -63,24 +63,6 @@ class LoginCubit extends Cubit<LoginState> {
   }
 }
 
-// [*] Sealed class 비활성화
-// /// LoginState: 로그인 상태
-// sealed class LoginState {}
-// /// 초기 상태
-// final class LoginInitial extends LoginState {}
-// /// 로딩 중 상태
-// final class LoginLoading extends LoginState {}
-// /// 성공 상태 (사용자 정보 포함)
-// final class LoginSuccess extends LoginState {
-//   final User user;
-//   final bool isRegistered; // 유저 등록 여부
-//   LoginSuccess(this.user, {this.isRegistered = false});
-// }
-// /// 실패 상태 (에러 메시지 포함)
-// final class LoginFailure extends LoginState {
-//   final String message;
-//   LoginFailure(this.message);
-// }
 
 @freezed // flag-based 방식
 class LoginState with _$LoginState {

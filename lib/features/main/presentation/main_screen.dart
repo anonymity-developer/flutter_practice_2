@@ -159,13 +159,6 @@ class MainScreen extends StatelessWidget {
                               TextButton(
                                 onPressed: () {
                                   context.push('/user_registration');
-                                  // [*] 메인 수동 새로 고침
-                                  // if (!context.mounted) return;
-                                  // final loginState = context.read<LoginCubit>().state;
-                                  // if (loginState is LoginSuccess) {
-                                  //   context.read<MainScreenCubit>()
-                                  //       .refreshUser(loginState.user.id);
-                                  // }
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
@@ -204,21 +197,6 @@ class MainScreen extends StatelessWidget {
                               TextButton(
                                 onPressed: () async {
                                   await context.push('/pet_registration/type');
-
-                                  // [*] 메인 수동 새로 고침
-                                  // if (!context.mounted) return;
-                                  // final state = context.read<MainScreenCubit>().state;
-                                  // switch (state) {
-                                  //   case MainScreenSuccess():
-                                  //     context.read<MainScreenCubit>().refreshPets(loginState.user.id);
-                                  //   case MainScreenFailure(message: final message):
-                                  //     ScaffoldMessenger.of(context).showSnackBar(
-                                  //       SnackBar(content: Text(message)),
-                                  //     );
-                                  //   case MainScreenInitial():
-                                  //   case MainScreenLoading():
-                                  //     break;
-                                  // }
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
