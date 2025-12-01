@@ -55,8 +55,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(pet.toJson());
+    final _data = pet;
     final _result =
         await _dio.fetch<Map<String, dynamic>>(_setStreamType<Pet>(Options(
       method: 'POST',
@@ -86,8 +85,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(pet.toJson());
+    final _data = pet;
     final _result =
         await _dio.fetch<Map<String, dynamic>>(_setStreamType<Pet>(Options(
       method: 'PUT',

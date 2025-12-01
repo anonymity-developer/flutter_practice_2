@@ -37,6 +37,8 @@ abstract class $MainScreenStateCopyWith<$Res> {
       List<Pet> pets,
       bool isLoading,
       String? error});
+
+  $UserRegistrationDataCopyWith<$Res> get userData;
 }
 
 /// @nodoc
@@ -76,6 +78,14 @@ class _$MainScreenStateCopyWithImpl<$Res, $Val extends MainScreenState>
               as String?,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserRegistrationDataCopyWith<$Res> get userData {
+    return $UserRegistrationDataCopyWith<$Res>(_value.userData, (value) {
+      return _then(_value.copyWith(userData: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -91,6 +101,9 @@ abstract class _$$MainScreenStateImplCopyWith<$Res>
       List<Pet> pets,
       bool isLoading,
       String? error});
+
+  @override
+  $UserRegistrationDataCopyWith<$Res> get userData;
 }
 
 /// @nodoc

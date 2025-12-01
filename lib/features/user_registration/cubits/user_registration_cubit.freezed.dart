@@ -101,6 +101,8 @@ abstract class _$$UserRegistrationInitialImplCopyWith<$Res> {
       __$$UserRegistrationInitialImplCopyWithImpl<$Res>;
   @useResult
   $Res call({UserRegistrationData data});
+
+  $UserRegistrationDataCopyWith<$Res> get data;
 }
 
 /// @nodoc
@@ -124,6 +126,14 @@ class __$$UserRegistrationInitialImplCopyWithImpl<$Res>
           : data // ignore: cast_nullable_to_non_nullable
               as UserRegistrationData,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserRegistrationDataCopyWith<$Res> get data {
+    return $UserRegistrationDataCopyWith<$Res>(_value.data, (value) {
+      return _then(_value.copyWith(data: value));
+    });
   }
 }
 
@@ -257,6 +267,8 @@ abstract class _$$UserRegistrationDataLoadedImplCopyWith<$Res> {
       __$$UserRegistrationDataLoadedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({UserRegistrationData data});
+
+  $UserRegistrationDataCopyWith<$Res> get data;
 }
 
 /// @nodoc
@@ -280,6 +292,14 @@ class __$$UserRegistrationDataLoadedImplCopyWithImpl<$Res>
           : data // ignore: cast_nullable_to_non_nullable
               as UserRegistrationData,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserRegistrationDataCopyWith<$Res> get data {
+    return $UserRegistrationDataCopyWith<$Res>(_value.data, (value) {
+      return _then(_value.copyWith(data: value));
+    });
   }
 }
 
@@ -537,6 +557,8 @@ abstract class _$$UserRegistrationSuccessImplCopyWith<$Res> {
       __$$UserRegistrationSuccessImplCopyWithImpl<$Res>;
   @useResult
   $Res call({UserRegistrationData data});
+
+  $UserRegistrationDataCopyWith<$Res> get data;
 }
 
 /// @nodoc
@@ -560,6 +582,14 @@ class __$$UserRegistrationSuccessImplCopyWithImpl<$Res>
           : data // ignore: cast_nullable_to_non_nullable
               as UserRegistrationData,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserRegistrationDataCopyWith<$Res> get data {
+    return $UserRegistrationDataCopyWith<$Res>(_value.data, (value) {
+      return _then(_value.copyWith(data: value));
+    });
   }
 }
 

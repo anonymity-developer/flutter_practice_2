@@ -351,7 +351,7 @@ class MainScreen extends StatelessWidget {
           ],
           if (registrationData.gender != null) ...[
             Text(
-              '성별: ${registrationData.gender}',
+              '성별: ${registrationData.gender == UserGender.male ? '남성' : '여성'}',
               style: AppTextStyles.bodyMedium(color: AppColors.black),
             ),
             AppSpacing.heightSM,

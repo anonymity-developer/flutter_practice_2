@@ -27,7 +27,7 @@ class UserRegistrationCubit extends Cubit<UserRegistrationState> {
   }
 
   /// 성별 저장
-  void saveGender(String gender) {
+  void saveGender(UserGender gender) {
     final currentData = _getCurrentData();
     final updatedData = currentData.copyWith(gender: gender);
     emit(UserRegistrationDataLoaded(updatedData));
@@ -71,7 +71,6 @@ Future<void> completeUserRegistration(String userId) async {
       currentData.birthday != null &&
       currentData.birthday!.isNotEmpty &&
       currentData.gender != null &&
-      currentData.gender!.isNotEmpty &&
       currentData.serviceTerms &&
       currentData.privacyPolicy;
 

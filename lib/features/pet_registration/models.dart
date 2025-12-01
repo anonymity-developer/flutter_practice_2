@@ -1,26 +1,17 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'models.freezed.dart';
+part 'models.g.dart';
+
 /// Pet 관련 Enum
 enum PetType {
   dog,
   cat;
-
-  static PetType fromString(String value) {
-    return PetType.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => PetType.dog,
-    );
-  }
 }
 
 enum PetGender {
   male,
   female;
-
-  static PetGender fromString(String value) {
-    return PetGender.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => PetGender.male,
-    );
-  }
 }
 
 enum PetBodyType {
@@ -29,44 +20,74 @@ enum PetBodyType {
   ideal,
   overWeight,
   obese;
+}
 
-  static PetBodyType? fromString(String? value) {
-    if (value == null) return null;
+/// type/gender/bodyType JSON 변환기 -> 기본값 처리, nullable enum 처리를 위해 사용
+class PetTypeConverter implements JsonConverter<PetType?, String?> {
+  const PetTypeConverter();
+
+  @override
+  PetType? fromJson(String? json) {
+    if (json == null) return null;
+    return PetType.values.firstWhere(
+      (e) => e.name == json,
+      orElse: () => PetType.dog,
+    );
+  }
+
+  @override
+  String? toJson(PetType? object) => object?.name;
+}
+class PetGenderConverter implements JsonConverter<PetGender?, String?> {
+  const PetGenderConverter();
+
+  @override
+  PetGender? fromJson(String? json) {
+    if (json == null) return null;
+    return PetGender.values.firstWhere(
+      (e) => e.name == json,
+      orElse: () => PetGender.male,
+    );
+  }
+
+  @override
+  String? toJson(PetGender? object) => object?.name;
+}
+
+class PetBodyTypeConverter implements JsonConverter<PetBodyType?, String?> {
+  const PetBodyTypeConverter();
+
+  @override
+  PetBodyType? fromJson(String? json) {
+    if (json == null) return null;
     return PetBodyType.values.firstWhere(
-      (e) => e.name == value,
+      (e) => e.name == json,
       orElse: () => PetBodyType.ideal,
     );
   }
+
+  @override
+  String? toJson(PetBodyType? object) => object?.name;
 }
 
 /// Pet 모델
-class Pet {
-  final String id;
-  final PetType? type;
-  final String breed;
-  final String name;
-  final PetGender? gender;
-  final bool isNeutered;
-
-  final String? birthday;
-  final double? weight;
-  final PetBodyType? bodyType;
-
-  Pet({
-    required this.id,
-    required this.type,
-    required this.breed,
-    required this.name,
-    required this.gender,
-    required this.isNeutered,
-    this.birthday,
-    this.weight,
-    this.bodyType,
-  });
+@freezed
+class Pet with _$Pet {
+  const factory Pet({
+    required String id,
+    @PetTypeConverter() PetType? type,
+    required String breed,
+    required String name,
+    @PetGenderConverter() PetGender? gender,
+    @Default(false) bool isNeutered,
+    String? birthday,
+    double? weight,
+    @PetBodyTypeConverter() PetBodyType? bodyType,
+  }) = _Pet;
 
   /// 빈 Pet 객체 생성
   factory Pet.empty() {
-    return Pet(
+    return const Pet(
       id: '',
       type: null,
       breed: '',
@@ -76,58 +97,5 @@ class Pet {
     );
   }
 
-  Pet copyWith({
-    String? id,
-    PetType? type,
-    String? breed,
-    String? name,
-    PetGender? gender,
-    bool? isNeutered,
-    String? birthday,
-    double? weight,
-    PetBodyType? bodyType,
-  }) {
-    return Pet(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      breed: breed ?? this.breed,
-      name: name ?? this.name,
-      gender: gender ?? this.gender,
-      isNeutered: isNeutered ?? this.isNeutered,
-      birthday: birthday ?? this.birthday,
-      weight: weight ?? this.weight,
-      bodyType: bodyType ?? this.bodyType,
-    );
-  }
-
-  /// JSON에서 Pet로 변환
-  factory Pet.fromJson(Map<String, dynamic> json) {
-    return Pet(
-      id: json['id'] as String,
-      type: PetType.fromString(json['type'] as String),
-      breed: json['breed'] as String,
-      name: json['name'] as String,
-      gender: PetGender.fromString(json['gender'] as String),
-      isNeutered: json['isNeutered'] as bool,
-      birthday: json['birthday'] as String?,
-      weight: (json['weight'] as num?)?.toDouble(),
-      bodyType: PetBodyType.fromString(json['bodyType'] as String?),
-    );
-  }
-
-  /// Pet를 JSON으로 변환
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'type': type?.name,
-      'breed': breed,
-      'name': name,
-      'gender': gender?.name,
-      'isNeutered': isNeutered,
-      'birthday': birthday,
-      'weight': weight,
-      'bodyType': bodyType?.name,
-    };
-  }
+  factory Pet.fromJson(Map<String, dynamic> json) => _$PetFromJson(json);
 }
-

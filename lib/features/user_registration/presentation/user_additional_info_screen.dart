@@ -4,6 +4,7 @@ import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import '../cubits/user_registration_cubit.dart';
+import '../models.dart';
 import 'package:go_router/go_router.dart';
 
 class UserAdditionalInfoScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class UserAdditionalInfoScreen extends StatefulWidget {
 class _UserAdditionalInfoScreenState extends State<UserAdditionalInfoScreen> {
   final _birthdayController = TextEditingController();
   final _referralCodeController = TextEditingController();
-  String? _selectedGender;
+  UserGender? _selectedGender;
   bool _isButtonEnabled = false;
 
   @override
@@ -91,17 +92,21 @@ class _UserAdditionalInfoScreenState extends State<UserAdditionalInfoScreen> {
                     ),
                   ),
                   AppSpacing.heightSM,
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedGender,
+                  DropdownButtonFormField<UserGender>(
+                    value: _selectedGender,
                     decoration: const InputDecoration(
                       hintText: '선택하기',
                     ),
-                    items: ['남성', '여성'].map((String gender) {
-                      return DropdownMenuItem<String>(
-                        value: gender,
-                        child: Text(gender),
-                      );
-                    }).toList(),
+                    items: const [
+                      DropdownMenuItem<UserGender>(
+                        value: UserGender.male,
+                        child: Text('남성'),
+                      ),
+                      DropdownMenuItem<UserGender>(
+                        value: UserGender.female,
+                        child: Text('여성'),
+                      ),
+                    ],
                     onChanged: (value) {
                       setState(() {
                         _selectedGender = value;
@@ -153,9 +158,9 @@ class _UserAdditionalInfoScreenState extends State<UserAdditionalInfoScreen> {
                               context.read<UserRegistrationCubit>().saveBirthday(
                                     _birthdayController.text,
                                   );
-                              context.read<UserRegistrationCubit>().saveGender(
-                                    _selectedGender!,
-                                  );
+                              if (_selectedGender != null) {
+                                context.read<UserRegistrationCubit>().saveGender(_selectedGender!);
+                              }
                               context.read<UserRegistrationCubit>().saveReferralCode(
                                     _referralCodeController.text.isEmpty
                                         ? null

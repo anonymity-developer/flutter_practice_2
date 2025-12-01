@@ -101,6 +101,8 @@ abstract class _$$PetRegistrationInitialImplCopyWith<$Res> {
       __$$PetRegistrationInitialImplCopyWithImpl<$Res>;
   @useResult
   $Res call({Pet pet});
+
+  $PetCopyWith<$Res> get pet;
 }
 
 /// @nodoc
@@ -124,6 +126,14 @@ class __$$PetRegistrationInitialImplCopyWithImpl<$Res>
           : pet // ignore: cast_nullable_to_non_nullable
               as Pet,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PetCopyWith<$Res> get pet {
+    return $PetCopyWith<$Res>(_value.pet, (value) {
+      return _then(_value.copyWith(pet: value));
+    });
   }
 }
 
@@ -257,6 +267,8 @@ abstract class _$$PetRegistrationLoadedImplCopyWith<$Res> {
       __$$PetRegistrationLoadedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({Pet pet});
+
+  $PetCopyWith<$Res> get pet;
 }
 
 /// @nodoc
@@ -279,6 +291,14 @@ class __$$PetRegistrationLoadedImplCopyWithImpl<$Res>
           : pet // ignore: cast_nullable_to_non_nullable
               as Pet,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PetCopyWith<$Res> get pet {
+    return $PetCopyWith<$Res>(_value.pet, (value) {
+      return _then(_value.copyWith(pet: value));
+    });
   }
 }
 
@@ -536,6 +556,8 @@ abstract class _$$PetRegistrationSuccessImplCopyWith<$Res> {
       __$$PetRegistrationSuccessImplCopyWithImpl<$Res>;
   @useResult
   $Res call({Pet pet});
+
+  $PetCopyWith<$Res> get pet;
 }
 
 /// @nodoc
@@ -559,6 +581,14 @@ class __$$PetRegistrationSuccessImplCopyWithImpl<$Res>
           : pet // ignore: cast_nullable_to_non_nullable
               as Pet,
     ));
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PetCopyWith<$Res> get pet {
+    return $PetCopyWith<$Res>(_value.pet, (value) {
+      return _then(_value.copyWith(pet: value));
+    });
   }
 }
 

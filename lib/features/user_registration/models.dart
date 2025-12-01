@@ -1,88 +1,45 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'models.freezed.dart';
+part 'models.g.dart';
+
+enum UserGender {
+  male,
+  female;
+}
+
+/// gender JSON 변환기 -> 기본값 처리, nullable enum 처리를 위해 사용
+class UserGenderConverter implements JsonConverter<UserGender?, String?> {
+  const UserGenderConverter();
+  @override
+  UserGender? fromJson(String? json) {
+    if (json == null) return null;
+    return UserGender.values.firstWhere(
+      (e) => e.name == json,
+      orElse: () => UserGender.male,
+    );
+  }
+  @override
+  String? toJson(UserGender? object) => object?.name;
+}
 
 /// 유저 등록 정보 모델
-class UserRegistrationData extends Equatable {
-  final String? nickname;
-  final String? birthday;
-  final String? gender;
-  final String? referralCode;
-  final bool serviceTerms;
-  final bool privacyPolicy;
-  final bool locationInfo;
-  final bool marketingInfo;
-
-  const UserRegistrationData({
-    this.nickname,
-    this.birthday,
-    this.gender,
-    this.referralCode,
-    this.serviceTerms = false,
-    this.privacyPolicy = false,
-    this.locationInfo = false,
-    this.marketingInfo = false,
-  });
-
-  /// 불변성을 유지하면서 특정 필드만 업데이트
-  UserRegistrationData copyWith({
+@freezed
+class UserRegistrationData with _$UserRegistrationData {
+  const factory UserRegistrationData({
     String? nickname,
     String? birthday,
-    String? gender,
+    @UserGenderConverter() UserGender? gender,
     String? referralCode,
-    bool? serviceTerms,
-    bool? privacyPolicy,
-    bool? locationInfo,
-    bool? marketingInfo,
-  }) {
-    return UserRegistrationData(
-      nickname: nickname ?? this.nickname,
-      birthday: birthday ?? this.birthday,
-      gender: gender ?? this.gender,
-      referralCode: referralCode ?? this.referralCode,
-      serviceTerms: serviceTerms ?? this.serviceTerms,
-      privacyPolicy: privacyPolicy ?? this.privacyPolicy,
-      locationInfo: locationInfo ?? this.locationInfo,
-      marketingInfo: marketingInfo ?? this.marketingInfo,
-    );
-  }
+    @Default(false) bool serviceTerms,
+    @Default(false) bool privacyPolicy,
+    @Default(false) bool locationInfo,
+    @Default(false) bool marketingInfo,
+  }) = _UserRegistrationData;
 
-  /// JSON에서 UserRegistrationData로 변환
-  factory UserRegistrationData.fromJson(Map<String, dynamic> json) {
-    return UserRegistrationData(
-      nickname: json['nickname'] as String?,
-      birthday: json['birthday'] as String?,
-      gender: json['gender'] as String?,
-      referralCode: json['referralCode'] as String?,
-      serviceTerms: json['serviceTerms'] as bool? ?? false,
-      privacyPolicy: json['privacyPolicy'] as bool? ?? false,
-      locationInfo: json['locationInfo'] as bool? ?? false,
-      marketingInfo: json['marketingInfo'] as bool? ?? false,
-    );
-  }
-
-  /// UserRegistrationData를 JSON으로 변환
-  Map<String, dynamic> toJson() {
-    return {
-      'nickname': nickname,
-      'birthday': birthday,
-      'gender': gender,
-      'referralCode': referralCode,
-      'serviceTerms': serviceTerms,
-      'privacyPolicy': privacyPolicy,
-      'locationInfo': locationInfo,
-      'marketingInfo': marketingInfo,
-    };
-  }
-
-  @override
-  List<Object?> get props => [
-        nickname,
-        birthday,
-        gender,
-        referralCode,
-        serviceTerms,
-        privacyPolicy,
-        locationInfo,
-        marketingInfo,
-      ];
+  factory UserRegistrationData.fromJson(Map<String, dynamic> json) =>
+      _$UserRegistrationDataFromJson(json);
 }
+
+
 
