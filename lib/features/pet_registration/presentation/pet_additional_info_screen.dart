@@ -129,7 +129,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                         setState(() {
                           _selectedBodyType = type;
                           _checkInput();
-                        });
+    });
                         context.pop();
                       },
                       child: Container(
@@ -304,7 +304,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       hintText: '체형을 선택해 주세요',
                       hintStyle: AppTextStyles.bodyMedium(
                         color: AppColors.secondary_color_gray_5,
-                      ),
+                  ),
                       suffixIcon: const Icon(
                         Icons.arrow_drop_down,
                         color: AppColors.secondary_color_gray_7,
@@ -333,7 +333,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
-                      ),
+                    ),
                     ),
                     onTap: () => _showBodyTypeModal(context),
                   ),
