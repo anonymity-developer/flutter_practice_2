@@ -108,8 +108,9 @@ class MainScreenCubit extends Cubit<MainScreenState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     // 유저가 변경되었거나 구독이 없으면 구독 시작
-    final shouldStartSubscription = isUserChanged || _userUpdateSubscription == null;
-    
+    final shouldStartSubscription =
+        isUserChanged || _userUpdateSubscription == null;
+
     if (shouldStartSubscription) {
       // 구독 시작 (BehaviorSubject가 마지막 값을 즉시 emit)
       _startSubscriptions();
@@ -121,7 +122,7 @@ class MainScreenCubit extends Cubit<MainScreenState> {
       // BehaviorSubject의 마지막 값 확인
       final lastUserUpdate = userRegistrationRepository.lastUpdatedUserId;
       final lastPetUpdate = petRegistrationRepository.lastUpdatedUserId;
-      
+
       // 같은 userId이고 이미 최신 데이터면 불필요한 호출 방지
       if (lastUserUpdate == userId && lastPetUpdate == userId) {
         return;
@@ -157,7 +158,6 @@ class MainScreenCubit extends Cubit<MainScreenState> {
       ),
     );
   }
-
 
   // [*] 메인 수동 새로 고침
 

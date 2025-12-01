@@ -129,7 +129,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                         setState(() {
                           _selectedBodyType = type;
                           _checkInput();
-    });
+                        });
                         context.pop();
                       },
                       child: Container(
@@ -304,7 +304,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       hintText: '체형을 선택해 주세요',
                       hintStyle: AppTextStyles.bodyMedium(
                         color: AppColors.secondary_color_gray_5,
-                  ),
+                      ),
                       suffixIcon: const Icon(
                         Icons.arrow_drop_down,
                         color: AppColors.secondary_color_gray_7,
@@ -333,7 +333,7 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
-                    ),
+                      ),
                     ),
                     onTap: () => _showBodyTypeModal(context),
                   ),
@@ -358,35 +358,41 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                               final weight = double.tryParse(
                                 _weightController.text,
                               );
-                              context
-                                  .read<PetRegistrationCubit>()
-                                  .saveBirthday(
-                                    _birthdayController.text.isEmpty
-                                        ? null
-                                        : _birthdayController.text,
-                                  );
+                              context.read<PetRegistrationCubit>().saveBirthday(
+                                _birthdayController.text.isEmpty
+                                    ? null
+                                    : _birthdayController.text,
+                              );
                               context.read<PetRegistrationCubit>().saveWeight(
                                 weight,
                               );
-                              context
-                                  .read<PetRegistrationCubit>()
-                                  .saveBodyType(_selectedBodyType);
+                              context.read<PetRegistrationCubit>().saveBodyType(
+                                _selectedBodyType,
+                              );
 
-                              final loginState = context.read<LoginCubit>().state;
+                              final loginState = context
+                                  .read<LoginCubit>()
+                                  .state;
                               if (loginState.user != null) {
                                 final userId = loginState.loginUserId!;
 
-                                await context.read<PetRegistrationCubit>().completePetRegistration(userId);
+                                await context
+                                    .read<PetRegistrationCubit>()
+                                    .completePetRegistration(userId);
                                 if (!context.mounted) return;
 
-                                final state = context.read<PetRegistrationCubit>().state;
+                                final state = context
+                                    .read<PetRegistrationCubit>()
+                                    .state;
                                 switch (state) {
                                   case PetRegistrationSuccess():
-                                    // [*] 메인 수동 새로 고침 
+                                    // [*] 메인 수동 새로 고침
                                     // await context.read<MainScreenCubit>().refreshPets(userId);
                                     if (!context.mounted) return;
                                     context.go('/main');
-                                  case PetRegistrationFailure(message: final message):
+                                  case PetRegistrationFailure(
+                                    message: final message,
+                                  ):
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text(message)),
                                     );
