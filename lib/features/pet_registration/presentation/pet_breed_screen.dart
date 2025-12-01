@@ -32,11 +32,7 @@ class PetBreedScreen extends StatelessWidget {
               
               BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                 builder: (context, state) {
-                  final selectedType = switch (state) {
-                    PetRegistrationInitial(pet: final pet) => pet.type,
-                    PetRegistrationLoaded(pet: final pet) => pet.type,
-                    _ => null,
-                  };
+                  final selectedType = state.pet?.type;
                   final petTypeText = selectedType == PetType.dog ? '강아지' : '고양이';
                   
                   return Text(
@@ -53,16 +49,10 @@ class PetBreedScreen extends StatelessWidget {
               Expanded(
                 child: BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                   builder: (context, state) {
-                    final currentPet = switch (state) {
-                      PetRegistrationInitial(pet: final pet) => pet,
-                      PetRegistrationLoaded(pet: final pet) => pet,
-                      _ => null,
-                    };
-                    
-                    if (currentPet == null) {
+                    final currentPet = state.pet;
+                    if (currentPet == null || currentPet.type == null) {
                       return const Center(child: Text('타입을 먼저 선택해주세요'));
                     }
-                    
                     final selectedType = currentPet.type;
                     final selectedBreed = currentPet.breed;
                     final isButtonEnabled = selectedBreed.isNotEmpty;

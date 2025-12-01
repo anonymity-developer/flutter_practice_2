@@ -50,12 +50,8 @@ class PetTypeScreen extends StatelessWidget {
               Expanded(
                 child: BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
                   builder: (context, state) {
-                    // PetRegistrationInitial과 PetRegistrationLoaded 모두에서 type 가져오기
-                    final selectedType = switch (state) {
-                      PetRegistrationInitial(pet: final pet) => pet.type,
-                      PetRegistrationLoaded(pet: final pet) => pet.type,
-                      _ => null,
-                    };
+                    // State에서 type 가져오기
+                    final selectedType = state.pet?.type;
                     final isButtonEnabled = selectedType != null;
                     
                     return Column(

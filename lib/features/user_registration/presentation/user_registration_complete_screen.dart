@@ -37,17 +37,7 @@ class _UserRegistrationCompleteScreenState
           child: BlocBuilder<UserRegistrationCubit, UserRegistrationState>(
             builder: (context, state) {
               // State에서 닉네임 가져오기
-              final nickname = switch (state) {
-                UserRegistrationInitial(data: final data) =>
-                  data.nickname ?? widget.nickname,
-                UserRegistrationSuccess(data: final data) =>
-                  data.nickname ?? widget.nickname,
-                UserRegistrationDataLoaded(data: final data) =>
-                  data.nickname ?? widget.nickname,
-                UserRegistrationLoading() => widget.nickname,
-                UserRegistrationFailure(message: _) => widget.nickname,
-                _ => widget.nickname, // 와일드카드 패턴
-              };
+              final nickname = state.data.nickname ?? widget.nickname;
 
               return Column(
                 children: [

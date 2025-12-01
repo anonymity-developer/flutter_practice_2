@@ -202,13 +202,9 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
     return BlocBuilder<PetRegistrationCubit, PetRegistrationState>(
       builder: (context, state) {
         String petName = '반려동물';
-        final pet = switch (state) {
-          PetRegistrationInitial(pet: final p) => p,
-          PetRegistrationLoaded(pet: final p) => p,
-          _ => null,
-        };
-        if (pet != null) {
-          petName = pet.name.isNotEmpty ? pet.name : '반려동물';
+        final pet = state.pet;
+        if (pet != null && pet.name.isNotEmpty) {
+          petName = pet.name;
         }
 
         return Scaffold(
@@ -384,22 +380,14 @@ class _PetAdditionalInfoScreenState extends State<PetAdditionalInfoScreen> {
                                 final state = context
                                     .read<PetRegistrationCubit>()
                                     .state;
-                                switch (state) {
-                                  case PetRegistrationSuccess():
-                                    // [*] 메인 수동 새로 고침
-                                    // await context.read<MainScreenCubit>().refreshPets(userId);
-                                    if (!context.mounted) return;
-                                    context.go('/main');
-                                  case PetRegistrationFailure(
-                                    message: final message,
-                                  ):
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(message)),
-                                    );
-                                  case PetRegistrationInitial():
-                                  case PetRegistrationLoading():
-                                  case PetRegistrationLoaded():
-                                    break;
+                                if (state.error != null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(state.error!)),
+                                  );
+                                } else if (!state.isLoading && state.pet != null && state.pet!.id.isNotEmpty) {
+                                  // 등록 성공
+                                  if (!context.mounted) return;
+                                  context.go('/main');
                                 }
                               }
                             }
