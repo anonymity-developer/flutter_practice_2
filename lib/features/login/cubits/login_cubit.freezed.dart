@@ -39,6 +39,8 @@ abstract class $LoginStateCopyWith<$Res> {
       String? loginUserId,
       bool isRegistered,
       String? error});
+
+  $UserCopyWith<$Res>? get user;
 }
 
 /// @nodoc
@@ -83,6 +85,18 @@ class _$LoginStateCopyWithImpl<$Res, $Val extends LoginState>
               as String?,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $UserCopyWith<$Res>? get user {
+    if (_value.user == null) {
+      return null;
+    }
+
+    return $UserCopyWith<$Res>(_value.user!, (value) {
+      return _then(_value.copyWith(user: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -99,6 +113,9 @@ abstract class _$$LoginStateImplCopyWith<$Res>
       String? loginUserId,
       bool isRegistered,
       String? error});
+
+  @override
+  $UserCopyWith<$Res>? get user;
 }
 
 /// @nodoc
