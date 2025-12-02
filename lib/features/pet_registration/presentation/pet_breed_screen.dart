@@ -258,26 +258,29 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredBreeds = [];
   List<String>? _allBreeds;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_filterBreeds);
+    _loadBreeds(); // 비동기로 로드
   }
 
-  void _initializeBreeds(BuildContext context) {
-    if (_allBreeds == null) {
+  Future<void> _loadBreeds() async {
+    setState(() => _isLoading = true);
+    try {
       final cubit = context.read<PetRegistrationCubit>();
-      _allBreeds = cubit.getBreeds(widget.type);
-      _filteredBreeds = List.from(_allBreeds!);
+      final breeds = await cubit.getBreeds(widget.type);
+      setState(() {
+        _allBreeds = breeds;
+        _filteredBreeds = List.from(breeds);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      // 에러 처리
     }
-  }
-
-  @override
-  void dispose() {
-    _searchController.removeListener(_filterBreeds);
-    _searchController.dispose();
-    super.dispose();
   }
 
   void _filterBreeds() {
@@ -295,7 +298,6 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
-    _initializeBreeds(context);
     final petTypeText = widget.type == PetType.dog ? '강아지' : '고양이';
     
     return Container(
@@ -394,93 +396,95 @@ class _BreedSelectionModalState extends State<_BreedSelectionModal> {
           
           // 종 리스트
           Expanded(
-            child: _filteredBreeds.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '앗 찾을 수 없어요.',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppColors.secondary_color_gray_7,
-                          ),
-                        ),
-                        AppSpacing.heightSM,
-                        Text(
-                          '다른 키워드로 검색해 보세요.',
-                          style: AppTextStyles.bodySmall(
-                            color: AppColors.secondary_color_gray_5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 검색어가 없을 때 "제안" 섹션 표시
-                      if (_searchController.text.isEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Text(
-                            '제안',
-                            style: AppTextStyles.bodyMedium(
-                              color: AppColors.secondary_color_gray_7,
-                              fontWeight: FontWeight.w600,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredBreeds.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '앗 찾을 수 없어요.',
+                              style: AppTextStyles.bodyMedium(
+                                color: AppColors.secondary_color_gray_7,
+                              ),
                             ),
-                          ),
+                            AppSpacing.heightSM,
+                            Text(
+                              '다른 키워드로 검색해 보세요.',
+                              style: AppTextStyles.bodySmall(
+                                color: AppColors.secondary_color_gray_5,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: _filteredBreeds.length,
-                          itemBuilder: (context, index) {
-                            final breed = _filteredBreeds[index];
-                            final isSelected = breed == widget.selectedBreed;
-                            
-                            return InkWell(
-                              onTap: () => widget.onBreedSelected(breed),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.secondary_color_gray_1
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  children: [
-                                    if (isSelected)
-                                      Padding(
-                                        padding: const EdgeInsets.only(right: 12),
-                                        child: SvgPicture.asset(
-                                          AppAssets.checkActive,
-                                          width: 20,
-                                          height: 20,
-                                        ),
-                                      ),
-                                    Text(
-                                      breed,
-                                      style: AppTextStyles.bodyMedium(
-                                        color: AppColors.black,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 검색어가 없을 때 "제안" 섹션 표시
+                          if (_searchController.text.isEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Text(
+                                '제안',
+                                style: AppTextStyles.bodyMedium(
+                                  color: AppColors.secondary_color_gray_7,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          ],
+                          Expanded(
+                            child: ListView.builder(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: _filteredBreeds.length,
+                              itemBuilder: (context, index) {
+                                final breed = _filteredBreeds[index];
+                                final isSelected = breed == widget.selectedBreed;
+                                
+                                return InkWell(
+                                  onTap: () => widget.onBreedSelected(breed),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.secondary_color_gray_1
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        if (isSelected)
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 12),
+                                            child: SvgPicture.asset(
+                                              AppAssets.checkActive,
+                                              width: 20,
+                                              height: 20,
+                                            ),
+                                          ),
+                                        Text(
+                                          breed,
+                                          style: AppTextStyles.bodyMedium(
+                                            color: AppColors.black,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
           ),
         ],
       ),

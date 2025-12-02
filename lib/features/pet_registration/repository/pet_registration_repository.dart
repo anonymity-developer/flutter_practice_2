@@ -19,32 +19,52 @@ class PetRegistrationRepository {
   
   /// 반려동물 등록
   Future<Pet> registerPet(String userId, Pet pet) async {
-    final result = await dataSource.registerPet(userId, pet);
-    _petUpdateSubject.add(userId); // 변경 알림
-    return result;
+    try {
+      final result = await dataSource.registerPet(userId, pet);
+      _petUpdateSubject.add(userId); // 변경 알림
+      return result;
+    } catch (e) {
+      rethrow; // DataSource에서 이미 에러 메시지 처리됨
+    }
   }
 
   /// 사용자 ID로 반려동물 목록 조회
   Future<List<Pet>> getPetDataByUserId(String userId) async {
-    return dataSource.getPetDataByUserId(userId);
+    try {
+      return await dataSource.getPetDataByUserId(userId);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// 반려동물 정보 수정
-  Future<Pet> updatePet(String userId, String petId, Pet pet) async {
-    final result = await dataSource.updatePet(petId, pet);
-    _petUpdateSubject.add(userId); // 변경 알림
-    return result;
+  Future<Pet> updatePet(String userId, String petSystemId, Pet pet) async {
+    try {
+      final result = await dataSource.updatePet(userId, petSystemId, pet);
+      _petUpdateSubject.add(userId); // 변경 알림
+      return result;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// 반려동물 삭제
-  Future<void> deletePet(String userId, String petId) async {
-    await dataSource.deletePet(petId);
-    _petUpdateSubject.add(userId); // 변경 알림
+  Future<void> deletePet(String userId, String petSystemId) async {
+    try {
+      await dataSource.deletePet(userId, petSystemId);
+      _petUpdateSubject.add(userId); // 변경 알림
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// 반려동물 품종 목록 조회
-  List<String> getBreeds(PetType type) {
-    return dataSource.getBreeds(type);
+  Future<List<String>> getBreeds(PetType type) async {
+    try {
+      return await dataSource.getBreeds(type);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// 스트림 업데이트 트리거 - BehaviorSubject에 userId를 emit하여 스트림을 통해 데이터 로드

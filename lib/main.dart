@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/login/repository/login_datasource.dart';
 import 'features/login/repository/login_repository.dart';
 import 'features/login/cubits/login_cubit.dart';
 import 'features/login/presentation/social_login_screen.dart';
 import 'features/login/presentation/id_login_screen.dart';
 import 'features/main/presentation/main_screen.dart';
-import 'features/user_registration/repository/user_registration_datasource.dart';
+import 'features/login/repository/login_datasource_api.dart';
+import 'features/login/repository/login_datasource_mock.dart';
+import 'features/user_registration/repository/user_registration_datasource_api.dart'; 
+import 'features/user_registration/repository/user_registration_datasource_mock.dart';
 import 'features/user_registration/repository/user_registration_repository.dart';
+import 'features/pet_registration/repository/pet_registration_datasource_api.dart';
+import 'features/pet_registration/repository/pet_registration_datasource_mock.dart';
 import 'features/user_registration/cubits/user_registration_cubit.dart';
 import 'features/user_registration/presentation/user_terms_agreement_screen.dart';
 import 'features/user_registration/presentation/user_nickname_screen.dart';
 import 'features/user_registration/presentation/user_additional_info_screen.dart';
 import 'features/user_registration/presentation/user_registration_complete_screen.dart';
-import 'features/pet_registration/repository/pet_registration_datasource.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
 import 'features/pet_registration/cubits/pet_registration_cubit.dart';
 import 'features/main/cubits/main_screen_cubit.dart';
@@ -36,16 +39,23 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (context) => LoginRepository(LoginDataSource()),
+          create: (context) => LoginRepository(
+            LoginDataSourceApi(), // API 데이터
+            // LoginDataSourceMock(), // Mock 데이터
+          ),
         ),
         RepositoryProvider(
           create: (context) => UserRegistrationRepository(
-            UserRegistrationDataSource(),
+            UserRegistrationDataSourceApi(), // API 데이터
+            // UserRegistrationDataSourceMock(), // Mock 데이터
           ),
         ),
         RepositoryProvider(
           create: (context) =>
-              PetRegistrationRepository(PetRegistrationDataSource()),
+              PetRegistrationRepository(
+                PetRegistrationDataSourceApi(), // API 데이터
+                // PetRegistrationDataSourceMock(), // Mock 데이터
+              ),
         ),
       ],
       child: MultiBlocProvider(
@@ -180,3 +190,10 @@ final GoRouter _router = GoRouter(
     ),
   ],
 );
+
+
+// Repository (구체 클래스)
+//     ↓ 의존(생성자에서 받음)
+// DataSource (인터페이스)
+//     ↓ 구현
+// DataSourceApi / DataSourceMock (구현체)

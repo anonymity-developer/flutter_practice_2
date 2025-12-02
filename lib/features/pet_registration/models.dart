@@ -22,6 +22,7 @@ enum PetBodyType {
   obese;
 }
 
+
 /// type/gender/bodyType JSON 변환기 -> 기본값 처리, nullable enum 처리를 위해 사용
 class PetTypeConverter implements JsonConverter<PetType?, String?> {
   const PetTypeConverter();

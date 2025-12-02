@@ -91,8 +91,8 @@ class PetRegistrationCubit extends Cubit<PetRegistrationState> {
     return state.pet ?? Pet.empty();
   }
   /// 품종 목록 조회
-  List<String> getBreeds(PetType type) {
-    return repository.getBreeds(type);
+  Future<List<String>> getBreeds(PetType type) async {
+    return await repository.getBreeds(type);
   }
 }
 

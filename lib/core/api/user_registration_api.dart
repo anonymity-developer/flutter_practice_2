@@ -30,3 +30,5 @@ abstract class UserRegistrationApi {
     @Path('userId') String userId,
   );
 }
+
+// userId = userLoginId

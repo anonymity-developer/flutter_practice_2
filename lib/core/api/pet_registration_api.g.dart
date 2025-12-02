@@ -19,6 +19,33 @@ class _PetRegistrationApi implements PetRegistrationApi {
   String? baseUrl;
 
   @override
+  Future<List<String>> getBreeds(String type) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final Map<String, dynamic>? _data = null;
+    final _result =
+        await _dio.fetch<List<dynamic>>(_setStreamType<List<String>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+            .compose(
+              _dio.options,
+              '/pets/breeds/${type}',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            ))));
+    final value = _result.data!.cast<String>();
+    return value;
+  }
+
+  @override
   Future<List<Pet>> getPetsByUserId(String userId) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -79,6 +106,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
 
   @override
   Future<Pet> updatePet(
+    String userId,
     String petId,
     Pet pet,
   ) async {
@@ -94,7 +122,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
     )
             .compose(
               _dio.options,
-              '/pets/${petId}',
+              '/users/${userId}/pets/${petId}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -108,7 +136,10 @@ class _PetRegistrationApi implements PetRegistrationApi {
   }
 
   @override
-  Future<void> deletePet(String petId) async {
+  Future<void> deletePet(
+    String userId,
+    String petId,
+  ) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -120,7 +151,7 @@ class _PetRegistrationApi implements PetRegistrationApi {
     )
         .compose(
           _dio.options,
-          '/pets/${petId}',
+          '/users/${userId}/pets/${petId}',
           queryParameters: queryParameters,
           data: _data,
         )

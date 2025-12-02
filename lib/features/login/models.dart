@@ -4,11 +4,13 @@ import 'package:equatable/equatable.dart';
 class User extends Equatable {
   final String id;
   final String userId;
+  final String password;
   final String? phone;
 
   const User({
     required this.id,
-    required this.userId ,
+    required this.userId,
+    required this.password,
     this.phone,
   });
 
@@ -17,6 +19,7 @@ class User extends Equatable {
     return User(
       id: json['id'] as String,
       userId: json['userId'] as String,
+      password: json['password'] as String,
       phone: json['phone'] as String?,
     );
   }
@@ -26,11 +29,12 @@ class User extends Equatable {
     return {
       'id': id,
       'userId': userId,
+      'password': password,
       'phone': phone,
     };
   }
 
   @override
-  List<Object?> get props => [id, userId, phone];
+  List<Object?> get props => [id, userId, password, phone];
 }
 

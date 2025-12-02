@@ -8,6 +8,11 @@ part 'pet_registration_api.g.dart';
 abstract class PetRegistrationApi {
   factory PetRegistrationApi(Dio dio, {String? baseUrl}) = _PetRegistrationApi;
 
+  @GET('/pets/breeds/{type}')
+  Future<List<String>> getBreeds(
+    @Path('type') String type,
+  );
+
   @GET('/users/{userId}/pets')
   Future<List<Pet>> getPetsByUserId(
     @Path('userId') String userId,
@@ -19,14 +24,18 @@ abstract class PetRegistrationApi {
     @Body() Pet pet,
   );
 
-  @PUT('/pets/{petId}')
+  @PUT('/users/{userId}/pets/{petId}') 
   Future<Pet> updatePet(
+    @Path('userId') String userId,
     @Path('petId') String petId,
     @Body() Pet pet,
   );
 
-  @DELETE('/pets/{petId}')
+  @DELETE('/users/{userId}/pets/{petId}') 
   Future<void> deletePet(
+    @Path('userId') String userId,
     @Path('petId') String petId,
   );
 }
+
+// userId = userLoginId
