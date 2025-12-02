@@ -19,7 +19,7 @@ class User extends Equatable {
     return User(
       id: json['id'] as String,
       userId: json['userId'] as String,
-      password: json['password'] as String,
+      password: json['password'] as String? ?? '',  // nullable 처리 또는 기본값
       phone: json['phone'] as String?,
     );
   }

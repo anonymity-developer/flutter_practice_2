@@ -5,6 +5,7 @@ class PetRegistrationDataSourceMock implements PetRegistrationDataSource {
 
   final Map<String, String> _userLoginIdToSystemIdMap = {
     'test1': '1',
+    'test2': '2',
   };
 
   final Map<String, List<Pet>> _mockData = {
