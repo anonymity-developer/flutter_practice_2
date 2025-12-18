@@ -1,24 +1,36 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../repository/login_repository.dart';
 import '../models.dart';
 import '../../user_registration/repository/user_registration_repository.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'login_cubit.freezed.dart';
 
 /// LoginCubit: 로그인 상태 관리
 class LoginCubit extends Cubit<LoginState> {
   final LoginRepository loginRepository;
   final UserRegistrationRepository userRegistrationRepository;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   LoginCubit(this.loginRepository, this.userRegistrationRepository)
     : super(const LoginState());
 
-  /// 로그인 처리 (목데이터 체크)
-  Future<void> login(String userId, String password) async {
+  /// 로그인 처리
+  /// isAutoLoginEnabled = false 기본값, 전달 받은 게 있으면 그걸로 처리
+  Future<void> login(String userId, String password, {bool isAutoLoginEnabled = false}) async { 
     emit(state.copyWith(isLoading: true, error: null));
     try {
       final user = await loginRepository.login(userId, password);
       if (user != null) {
+        // 자동 로그인 설정에 따라 저장
+        if (isAutoLoginEnabled) {
+          await _saveLoginCredentials(userId, password);
+        } else {
+          await _clearLoginCredentials();
+        }
+
         // 유저 등록 여부 확인
         try {
           final registrationData = await userRegistrationRepository
@@ -52,17 +64,63 @@ class LoginCubit extends Cubit<LoginState> {
         );
       }
     } catch (e) {
-      print('로그인 전체 실패: $e');
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
+  /// 로그인 정보 저장
+  Future<void> _saveLoginCredentials(String userId, String password) async {
+  
+    // flutter_secure_storage에 저장
+    await _secureStorage.write(key: 'userId', value: userId);
+    await _secureStorage.write(key: 'password', value: password);
+    
+    // shared_preferences에 설정 저장
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isAutoLoginEnabled', true);
+    await prefs.setString('lastLoginTime', DateTime.now().toIso8601String());
+  }
+
+  /// 로그인 정보 삭제
+  Future<void> _clearLoginCredentials() async {
+    await _secureStorage.delete(key: 'userId');
+    await _secureStorage.delete(key: 'password');
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isAutoLoginEnabled', false);
+  }
+
   /// 사용자 정보 삭제 (로그아웃)
   Future<void> logout() async {
+    await _clearLoginCredentials(); // 로그아웃 시 저장된 정보 삭제
     emit(state.copyWith(user: null, loginUserId: null, isRegistered: false));
   }
-}
 
+  /// 앱 시작 시 자동 로그인 확인
+  Future<void> checkAutoLogin() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isAutoLoginEnabled = prefs.getBool('isAutoLoginEnabled') ?? false;
+      
+      if (!isAutoLoginEnabled) {
+        return; // 자동 로그인 비활성화 상태면 종료
+      }
+      
+      // 저장된 자격 증명 가져오기
+      final userId = await _secureStorage.read(key: 'userId');
+      final password = await _secureStorage.read(key: 'password');
+      
+      if (userId != null && password != null) {
+        // 자동 로그인 시도
+        await login(userId, password, isAutoLoginEnabled: true);
+      }
+    } catch (e) {
+      print('자동 로그인 확인 실패: $e');
+      // 에러 발생 시 자동 로그인 정보 삭제
+      await _clearLoginCredentials();
+    }
+  }
+}
 
 @freezed // flag-based 방식
 class LoginState with _$LoginState {

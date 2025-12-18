@@ -8,6 +8,7 @@ import 'package:flutter_application_2/features/pet_registration/models.dart';
 import 'package:flutter_application_2/features/user_registration/models.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_2/features/main/cubits/main_screen_cubit.dart';
+import 'package:flutter/services.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -23,8 +24,11 @@ class MainScreen extends StatelessWidget {
           // 로그인 성공 시 데이터 로드 - 로그인 ID 사용
           context.read<MainScreenCubit>().loadData(loginState.loginUserId!);
         } else if (loginState.user == null) {
-          // 로그아웃 시 상태 초기화
+          // 로그아웃 시 상태 초기화 및 로그인 화면으로 이동
           context.read<MainScreenCubit>().reset();
+          if (context.mounted) {
+            context.go('/login/social');
+          }
         }
       },
       child: Scaffold(
@@ -34,6 +38,12 @@ class MainScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.go('/login/social'),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => SystemNavigator.pop(),
+            ),
+          ],
         ),
         body: SafeArea(
           child: BlocBuilder<LoginCubit, LoginState>(
@@ -231,9 +241,9 @@ class MainScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () {
-                                context.read<LoginCubit>().logout();
-                                context.go('/login/social');
+                              onPressed: () async {
+                                await context.read<LoginCubit>().logout();
+                                // BlocListener에서 화면 이동 처리
                               },
                               child: Text(
                                 '로그아웃',

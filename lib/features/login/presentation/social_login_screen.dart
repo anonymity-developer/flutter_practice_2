@@ -1,17 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_application_2/core/theme/app_colors.dart';
 import 'package:flutter_application_2/core/theme/app_text_styles.dart';
 import 'package:flutter_application_2/core/constants/app_assets.dart';
 import 'package:flutter_application_2/core/constants/app_spacing.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
+import '../cubits/login_cubit.dart';
 
 class SocialLoginScreen extends StatelessWidget {
   const SocialLoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, state) {
+        // 자동 로그인 성공 시 메인 화면으로 이동
+        if (state.user != null) {
+          if (!context.mounted) return;
+          if (state.isRegistered) {
+            // 등록된 유저 : 메인 화면
+            context.go('/main');
+          } else {
+            // 미등록 유저 : 유저 등록 플로우
+            context.go('/user_registration');
+          }
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: Padding(
@@ -29,7 +46,7 @@ class SocialLoginScreen extends StatelessWidget {
                       height: 40,
                     ),
                     onPressed: () {
-                      // TODO: 닫기 동작
+                      SystemNavigator.pop(); // 앱 종료
                     },
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -126,6 +143,7 @@ class SocialLoginScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

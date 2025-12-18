@@ -44,29 +44,34 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<LoginRepository>(
           create: (context) => LoginRepositoryImpl(
             LoginDataSourceApi(), // API 데이터
-            // LoginDataSourceMock(), // Mock 데이터
+            //LoginDataSourceMock(), // Mock 데이터
           ),
         ),
         RepositoryProvider<UserRegistrationRepository>(
           create: (context) => UserRegistrationRepositoryImpl(
             UserRegistrationDataSourceApi(), // API 데이터
-            // UserRegistrationDataSourceMock(), // Mock 데이터
+            //UserRegistrationDataSourceMock(), // Mock 데이터
           ),
         ),
         RepositoryProvider<PetRegistrationRepository>(
           create: (context) => PetRegistrationRepositoryImpl(
             PetRegistrationDataSourceApi(), // API 데이터
-            // PetRegistrationDataSourceMock(), // Mock 데이터
+            //PetRegistrationDataSourceMock(), // Mock 데이터
           ),
         ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => LoginCubit(
-              context.read<LoginRepository>(),
-              context.read<UserRegistrationRepository>(),
-            ),
+            create: (context) {
+              final cubit = LoginCubit(
+                context.read<LoginRepository>(),
+                context.read<UserRegistrationRepository>(),
+              );
+              // 앱 시작 시 자동 로그인 확인
+              cubit.checkAutoLogin();
+              return cubit;
+            },
           ),
           BlocProvider(
             create: (context) => MainScreenCubit(
@@ -87,7 +92,36 @@ class MyApp extends StatelessWidget {
 
 final GoRouter _router = GoRouter(
   initialLocation: '/login/social',
-
+  redirect: (context, state) {
+    // LoginCubit이 아직 생성되지 않았을 수 있으므로 안전하게 처리
+    try {
+      final loginCubit = context.read<LoginCubit>();
+      final loginState = loginCubit.state;
+      
+      // 로그인된 상태이고 로그인 화면에 있는 경우
+      if (loginState.user != null && state.uri.path.startsWith('/login')) {
+        // 등록 여부에 따라 다른 화면으로 이동
+        if (loginState.isRegistered) {
+          return '/main';
+        } else {
+          return '/user_registration';
+        }
+      }
+      
+      // 로그인되지 않은 상태이고 메인 화면인 경우 로그인 화면으로 이동
+      if (loginState.user == null && state.uri.path == '/main') {
+        return '/login/social';
+      }
+    } catch (e) {
+      // LoginCubit을 아직 읽을 수 없는 경우 (초기 빌드 시)
+      // 로그인 화면으로 유지
+      if (state.uri.path == '/main') {
+        return '/login/social';
+      }
+    }
+    
+    return null; // 리다이렉트 없음
+  },
   // 로그인 (전역 LoginCubit 사용)
   routes: [
     GoRoute(
