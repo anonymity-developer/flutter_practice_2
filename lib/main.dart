@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'core/theme/app_theme.dart';
+import 'features/user_registration/adapters/user_registration_data_adapter.dart';
+import 'features/pet_registration/adapters/pet_adapter.dart';
 import 'features/login/repository/login_repository.dart';
 import 'features/login/repository/login_repository_impl.dart';
 import 'features/login/cubits/login_cubit.dart';
@@ -9,13 +12,12 @@ import 'features/login/presentation/social_login_screen.dart';
 import 'features/login/presentation/id_login_screen.dart';
 import 'features/main/presentation/main_screen.dart';
 import 'features/login/repository/login_datasource_api.dart';
-import 'features/login/repository/login_datasource_mock.dart';
 import 'features/user_registration/repository/user_registration_datasource_api.dart'; 
-import 'features/user_registration/repository/user_registration_datasource_mock.dart';
+import 'features/user_registration/repository/user_registration_datasource_hive.dart';
 import 'features/user_registration/repository/user_registration_repository.dart';
 import 'features/user_registration/repository/user_registration_repository_impl.dart';
 import 'features/pet_registration/repository/pet_registration_datasource_api.dart';
-import 'features/pet_registration/repository/pet_registration_datasource_mock.dart';
+import 'features/pet_registration/repository/pet_registration_datasource_hive.dart';
 import 'features/pet_registration/repository/pet_registration_repository.dart';
 import 'features/pet_registration/repository/pet_registration_repository_impl.dart';
 import 'features/user_registration/cubits/user_registration_cubit.dart';
@@ -30,7 +32,16 @@ import 'features/pet_registration/presentation/pet_breed_screen.dart';
 import 'features/pet_registration/presentation/pet_name_and_gender_screen.dart';
 import 'features/pet_registration/presentation/pet_additional_info_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Hive 초기화
+  await Hive.initFlutter();
+  
+  // TypeAdapter 등록
+  Hive.registerAdapter(UserRegistrationDataAdapter());
+  Hive.registerAdapter(PetAdapter());
+  
   runApp(const MyApp());
 }
 
@@ -49,14 +60,18 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider<UserRegistrationRepository>(
           create: (context) => UserRegistrationRepositoryImpl(
-            UserRegistrationDataSourceApi(), // API 데이터
-            //UserRegistrationDataSourceMock(), // Mock 데이터
+            apiDataSource: UserRegistrationDataSourceApi(),
+            hiveDataSource: UserRegistrationDataSourceHive(),
+            // apiDataSource: UserRegistrationDataSourceMock(),
+            // hiveDataSource: UserRegistrationDataSourceHive(),
           ),
         ),
         RepositoryProvider<PetRegistrationRepository>(
           create: (context) => PetRegistrationRepositoryImpl(
-            PetRegistrationDataSourceApi(), // API 데이터
-            //PetRegistrationDataSourceMock(), // Mock 데이터
+            apiDataSource: PetRegistrationDataSourceApi(),
+            hiveDataSource: PetRegistrationDataSourceHive(),
+            // apiDataSource: PetRegistrationDataSourceMock(),
+            // hiveDataSource: PetRegistrationDataSourceHive(),
           ),
         ),
       ],

@@ -11,6 +11,9 @@ abstract class PetRegistrationDataSource {
   /// 사용자 ID로 반려동물 목록 조회
   Future<List<Pet>> getPetDataByUserId(String userId);
 
+  /// 개별 반려동물 조회
+  Future<Pet?> getPet(String userId, String petSystemId);
+
   /// 반려동물 정보 수정
   Future<Pet> updatePet(String userId, String petSystemId, Pet pet);
 

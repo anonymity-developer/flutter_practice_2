@@ -97,6 +97,16 @@ class PetRegistrationDataSourceMock implements PetRegistrationDataSource {
   }
 
   @override
+  Future<Pet?> getPet(String userId, String petSystemId) async {
+    final pets = await getPetDataByUserId(userId);
+    try {
+      return pets.firstWhere((pet) => pet.id == petSystemId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
   Future<Pet> updatePet(String userId, String petSystemId, Pet pet) async {
     final userSystemId = _getUserSystemIdByLoginId(userId);
     final pets = userSystemId != null ? _mockData[userSystemId] : null;

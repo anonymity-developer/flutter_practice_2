@@ -64,6 +64,21 @@ class PetRegistrationDataSourceApi implements PetRegistrationDataSource {
     }
   }
 
+  /// 개별 반려동물 조회
+  @override
+  Future<Pet?> getPet(String userId, String petSystemId) async {
+    try {
+      final pets = await getPetDataByUserId(userId);
+      return pets.firstWhere(
+        (pet) => pet.id == petSystemId,
+        orElse: () => throw StateError('Pet not found'),
+      );
+    } catch (e) {
+      if (e is StateError) return null;
+      rethrow;
+    }
+  }
+
   /// 반려동물 정보 수정
   @override
   Future<Pet> updatePet(String userId, String petSystemId, Pet pet) async {
